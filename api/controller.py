@@ -10,7 +10,7 @@ def add_user():
     user_data = request.get_json()
 
     new_user = User(email=user_data['email'], password=user_data['password'],
-                    first_name=user_data['first_name'], last_name=user_data['last_name'])
+                    first_name=user_data['firstName'], last_name=user_data['lastName'])
 
     db.session.add(new_user)
     db.session.commit()
