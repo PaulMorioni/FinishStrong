@@ -1,13 +1,16 @@
 import React, { useEffect } from "react";
-import { Header, List } from "semantic-ui-react";
+import { Container, Divider, Grid, Header, List } from "semantic-ui-react";
 import "./App.css";
-import Login from "./Login";
+import Login from "./Register";
 
 function App() {
   return (
     <div className="App">
-      <Header>Finish Strong</Header>
-      <Login></Login>
+      <Container style={{ marginTop: 40 }}>
+        <Header>Finish Strong</Header>
+        <Divider hidden></Divider>
+        <Login></Login>
+      </Container>
     </div>
   );
 }
