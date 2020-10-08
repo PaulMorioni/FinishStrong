@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { Container, Divider, Grid, Header, List } from "semantic-ui-react";
+import React from "react";
+import { Container, Divider, Header } from "semantic-ui-react";
 import "./App.css";
-import Login from "./Register";
+import RegisterForm from "./components/register/RegisterForm";
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Container style={{ marginTop: 40 }}>
         <Header>Finish Strong</Header>
         <Divider hidden></Divider>
-        <Login></Login>
+        <RegisterForm />
       </Container>
     </div>
   );
