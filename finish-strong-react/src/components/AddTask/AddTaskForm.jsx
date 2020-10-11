@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, FormField, Grid } from "semantic-ui-react";
-import AddProjectSuccess from "./AddProjectSuccess";
-import validateAddProject from "./validateAddProject";
+import { Button, Form, FormField, Grid, Rating } from "semantic-ui-react";
+import AddTaskSuccess from "./AddTaskSuccess";
+import validateAddTask from "./validateAddTask";
 import SemanticDatepicker from "react-semantic-ui-datepickers";
+
+//Needs to send values properly and needs to take Project ID out of session.
 
 const AddProjectForm = (props) => {
   const [values, setValues] = useState({
     name: "",
     description: "",
+    eta: "",
     deadline: "",
+    difficulty: 0,
+
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  async function sendProject(project) {
-    const response = await fetch("/add_project", {
+  async function sendTask(task) {
+    const response = await fetch("/add_task", {
       //sends project data to api server for storage.
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(project),
+      body: JSON.stringify(task),
     });
     if (response.ok) {
       setIsSubmitted(true);
@@ -38,14 +43,14 @@ const AddProjectForm = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setErrors(validateAddProject(values));
+    setErrors(validateAddTask(values));
     setIsSubmitting(true);
   };
 
   useEffect(() => {
     if (Object.keys(errors).length === 0 && isSubmitting) {
-      validateAddProject(values);
-      sendProject(values);
+      validateAddTask(values);
+      sendTask(values);
     }
   }, [errors, values, isSubmitting]);
 
@@ -54,12 +59,12 @@ const AddProjectForm = (props) => {
       //input sizes change when errors occur. needs changed TODO
       //may need to fix if else statement
       //SemanticDatePicker handle change isnt setting properly. Needs fixed.
-      <div className="form-content-right">
+      <div>
         <Grid centered>
           <Form size="large">
             <Form.Input
               id="name"
-              label="Project Name"
+              label="Task Name"
               placeholder="Finish-Strong"
               type="name"
               error={errors.name}
@@ -76,6 +81,13 @@ const AddProjectForm = (props) => {
               value={values.description}
               onChange={handleChange}
             />
+                <SemanticDatepicker
+                id="eta"
+                label="Estimated Date of Completion"
+                onChange={handleChange}
+                error={errors.deadline}
+                value={values.deadline}
+              />
               <SemanticDatepicker
                 id="deadline"
                 label="Deadline"
@@ -83,6 +95,14 @@ const AddProjectForm = (props) => {
                 error={errors.deadline}
                 value={values.deadline}
               />
+            <Form.Field>
+                <Rating
+                id="difficulty"
+                icon="star"
+                defaultRating={0}
+                maxRating={10}
+                />
+            </Form.Field>
             <Form.Field>
               <Button disabled={isSubmitted} onClick={handleSubmit}>
                 Submit
@@ -93,7 +113,7 @@ const AddProjectForm = (props) => {
       </div>
     );
   } else {
-    return <AddProjectSuccess />;
+    return <AddTaskSuccess />;
   }
-}; 
+};
 export default AddProjectForm;
