@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
+  Grid,
   Box,
   Button,
   Card,
@@ -9,7 +10,8 @@ import {
   TextField,
   InputAdornment,
   SvgIcon,
-  makeStyles
+  makeStyles,
+  Typography
 } from '@material-ui/core';
 import { Search as SearchIcon } from 'react-feather';
 
@@ -35,23 +37,17 @@ const Toolbar = ({ className, ...rest }) => {
         display="flex"
         justifyContent="flex-end"
       >
-        <Button className={classes.importButton}>
-          Import
-        </Button>
-        <Button className={classes.exportButton}>
-          Export
-        </Button>
         <Button
           color="primary"
           variant="contained"
         >
-          Add customer
+          Add Task
         </Button>
       </Box>
       <Box mt={3}>
         <Card>
           <CardContent>
-            <Box maxWidth={500}>
+            <Box center maxWidth={500}>
               <TextField
                 fullWidth
                 InputProps={{
@@ -66,7 +62,7 @@ const Toolbar = ({ className, ...rest }) => {
                     </InputAdornment>
                   )
                 }}
-                placeholder="Search customer"
+                placeholder="Search Task"
                 variant="outlined"
               />
             </Box>

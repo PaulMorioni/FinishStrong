@@ -17,7 +17,6 @@ import {
   Typography,
   makeStyles
 } from '@material-ui/core';
-import getInitials from 'src/utils/getInitials';
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -26,42 +25,42 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Results = ({ className, customers, ...rest }) => {
+const Results = ({ className, tasks, ...rest }) => {
   const classes = useStyles();
-  const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
+  const [selectedTaskIds, setSelectedTaskIds] = useState([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
 
   const handleSelectAll = (event) => {
-    let newSelectedCustomerIds;
+    let newSelectedTaskIds;
 
     if (event.target.checked) {
-      newSelectedCustomerIds = customers.map((customer) => customer.id);
+      newSelectedTaskIds = tasks.map((task) => task.id);
     } else {
-      newSelectedCustomerIds = [];
+      newSelectedTaskIds = [];
     }
 
-    setSelectedCustomerIds(newSelectedCustomerIds);
+    setSelectedTaskIds(newSelectedTaskIds);
   };
 
   const handleSelectOne = (event, id) => {
-    const selectedIndex = selectedCustomerIds.indexOf(id);
-    let newSelectedCustomerIds = [];
+    const selectedIndex = selectedTaskIds.indexOf(id);
+    let newSelectedTaskIds = [];
 
     if (selectedIndex === -1) {
-      newSelectedCustomerIds = newSelectedCustomerIds.concat(selectedCustomerIds, id);
+      newSelectedTaskIds = newSelectedTaskIds.concat(selectedTaskIds, id);
     } else if (selectedIndex === 0) {
-      newSelectedCustomerIds = newSelectedCustomerIds.concat(selectedCustomerIds.slice(1));
-    } else if (selectedIndex === selectedCustomerIds.length - 1) {
-      newSelectedCustomerIds = newSelectedCustomerIds.concat(selectedCustomerIds.slice(0, -1));
+      newSelectedTaskIds = newSelectedTaskIds.concat(selectedTaskIds.slice(1));
+    } else if (selectedIndex === selectedTaskIds.length - 1) {
+      newSelectedTaskIds = newSelectedTaskIds.concat(selectedTaskIds.slice(0, -1));
     } else if (selectedIndex > 0) {
-      newSelectedCustomerIds = newSelectedCustomerIds.concat(
-        selectedCustomerIds.slice(0, selectedIndex),
-        selectedCustomerIds.slice(selectedIndex + 1)
+      newSelectedTaskIds = newSelectedTaskIds.concat(
+        selectedTaskIds.slice(0, selectedIndex),
+        selectedTaskIds.slice(selectedIndex + 1)
       );
     }
 
-    setSelectedCustomerIds(newSelectedCustomerIds);
+    setSelectedTaskIds(newSelectedTaskIds);
   };
 
   const handleLimitChange = (event) => {
@@ -84,76 +83,92 @@ const Results = ({ className, customers, ...rest }) => {
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    checked={selectedCustomerIds.length === customers.length}
+                    checked={selectedTaskIds.length === tasks.length}
                     color="primary"
                     indeterminate={
-                      selectedCustomerIds.length > 0
-                      && selectedCustomerIds.length < customers.length
+                      selectedTaskIds.length > 0
+                      && selectedTaskIds.length < tasks.length
                     }
                     onChange={handleSelectAll}
                   />
                 </TableCell>
                 <TableCell>
+                  Project Name
+                </TableCell>
+                <TableCell>
                   Name
                 </TableCell>
                 <TableCell>
-                  Email
+                  Description
                 </TableCell>
                 <TableCell>
-                  Location
+                  Created
                 </TableCell>
                 <TableCell>
-                  Phone
+                  Deadline
                 </TableCell>
                 <TableCell>
-                  Registration date
+                  Last Updated
+                </TableCell>
+                <TableCell>
+                  Difficulty
+                </TableCell>
+                <TableCell>
+                  Status
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {customers.slice(0, limit).map((customer) => (
+              {tasks.slice(0, limit).map((task) => (
                 <TableRow
                   hover
-                  key={customer.id}
-                  selected={selectedCustomerIds.indexOf(customer.id) !== -1}
+                  key={task.id}
+                  selected={selectedTaskIds.indexOf(task.id) !== -1}
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
-                      checked={selectedCustomerIds.indexOf(customer.id) !== -1}
-                      onChange={(event) => handleSelectOne(event, customer.id)}
+                      checked={selectedTaskIds.indexOf(task.id) !== -1}
+                      onChange={(event) => handleSelectOne(event, task.id)}
                       value="true"
                     />
+                  </TableCell>
+                  <TableCell>
+                    
+                  ProjectName 
+
                   </TableCell>
                   <TableCell>
                     <Box
                       alignItems="center"
                       display="flex"
                     >
-                      <Avatar
-                        className={classes.avatar}
-                        src={customer.avatarUrl}
-                      >
-                        {getInitials(customer.name)}
-                      </Avatar>
                       <Typography
                         color="textPrimary"
                         variant="body1"
                       >
-                        {customer.name}
+                        {task.name}
                       </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    {customer.email}
+                    {task.description}
                   </TableCell>
                   <TableCell>
-                    {`${customer.address.city}, ${customer.address.state}, ${customer.address.country}`}
+                    {task.created_on}
                   </TableCell>
                   <TableCell>
-                    {customer.phone}
+                    {task.deadline}
                   </TableCell>
                   <TableCell>
-                    {moment(customer.createdAt).format('DD/MM/YYYY')}
+
+
+
+                  </TableCell>
+                  <TableCell>
+                    {task.difficulty}
+                  </TableCell>
+                  <TableCell>
+                    {task.status}
                   </TableCell>
                 </TableRow>
               ))}
@@ -163,7 +178,7 @@ const Results = ({ className, customers, ...rest }) => {
       </PerfectScrollbar>
       <TablePagination
         component="div"
-        count={customers.length}
+        count={tasks.length}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handleLimitChange}
         page={page}
@@ -176,7 +191,7 @@ const Results = ({ className, customers, ...rest }) => {
 
 Results.propTypes = {
   className: PropTypes.string,
-  customers: PropTypes.array.isRequired
+  tasks: PropTypes.array.isRequired
 };
 
 export default Results;

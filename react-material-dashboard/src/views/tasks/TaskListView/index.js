@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -7,7 +7,7 @@ import {
 import Page from 'src/components/Page';
 import Results from './Results';
 import Toolbar from './Toolbar';
-import data from './data';
+import axios from 'axios'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,23 +18,32 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const CustomerListView = () => {
+const TaskListView = () => {
   const classes = useStyles();
-  const [customers] = useState(data);
+
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    axios.get("http://localhost:5000/tasks").then((response) => {
+      const allTasks = response.data;
+      console.log(allTasks.tasks)
+      setTasks(allTasks.tasks)
+    }); 
+  }, [setTasks]);
 
   return (
     <Page
       className={classes.root}
-      title="Customers"
+      title="My Tasks"
     >
       <Container maxWidth={false}>
         <Toolbar />
         <Box mt={3}>
-          <Results customers={customers} />
+          <Results tasks={tasks} />
         </Box>
       </Container>
     </Page>
   );
 };
 
-export default CustomerListView;
+export default TaskListView;
