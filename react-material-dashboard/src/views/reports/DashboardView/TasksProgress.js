@@ -25,8 +25,9 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const TasksProgress = ({ className, ...rest }) => {
+const TasksProgress = ({ className, tasks, NumberOfIncomplete, ...rest }) => {
   const classes = useStyles();
+  const fixedDecimal = (NumberOfIncomplete(tasks)/tasks.length).toFixed(2)
 
   return (
     <Card
@@ -51,7 +52,7 @@ const TasksProgress = ({ className, ...rest }) => {
               color="textPrimary"
               variant="h3"
             >
-              75.5%
+              {fixedDecimal*100}%
             </Typography>
           </Grid>
           <Grid item>
@@ -60,12 +61,6 @@ const TasksProgress = ({ className, ...rest }) => {
             </Avatar>
           </Grid>
         </Grid>
-        <Box mt={3}>
-          <LinearProgress
-            value={75.5}
-            variant="determinate"
-          />
-        </Box>
       </CardContent>
     </Card>
   );

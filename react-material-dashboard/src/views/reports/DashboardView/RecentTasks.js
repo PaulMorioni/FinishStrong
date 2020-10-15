@@ -32,19 +32,9 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const RecentTasks = ({ className, ...rest }) => { 
+const RecentTasks = ({ className, tasks, ...rest }) => { 
   const classes = useStyles();
-  const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    axios.get("http://localhost:5000/tasks").then((response) => {
-      const allTasks = response.data;
-      console.log(allTasks.tasks)
-      setTasks(allTasks.tasks)
-    }); 
-  }, [setTasks]);
-
-  
   return (
     <Card
       className={clsx(classes.root, className)} 

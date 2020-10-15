@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Grid,
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
-import Budget from './Budget';
+import TotalProjects from './TotalProjects';
 import RecentTasks from './RecentTasks';
 import LatestProjects from './LatestProjects';
 import Sales from './Sales';
 import TasksProgress from './TasksProgress';
-import TotalCustomers from './TotalCustomers';
-import TotalProfit from './TotalProfit';
-import TrafficByDevice from './TrafficByDevice';
+import TotalTasks from './TotalTasks';
+import TasksToComplete from './TasksToComplete';
+import Axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,8 +23,34 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+function NumberOfIncomplete(tasks) {
+  const incomplete = []
+  tasks.map(task => {
+    if (task.status !== "completed") {
+      incomplete.push(task)
+    }
+  });
+  return incomplete.length
+};
+
 const Dashboard = () => {
   const classes = useStyles();
+  const [projects, setProjects] = useState([])
+  const [tasks, setTasks] = useState([]);
+  
+  useEffect(() => {
+    Axios.get("http://localhost:5000/projects").then((response) => {
+      const allProjects = response.data;
+      setProjects(allProjects.projects)
+    }); 
+  }, [setProjects]);
+
+  useEffect(() => {
+    Axios.get("http://localhost:5000/tasks").then((response) => {
+      const allTasks = response.data;
+      setTasks(allTasks.tasks)
+    }); 
+  }, [setTasks]);
 
   return (
     <Page
@@ -43,7 +69,7 @@ const Dashboard = () => {
             xl={3}
             xs={12}
           >
-            <Budget />
+            <TotalProjects projects={projects}/>
           </Grid>
           <Grid
             item
@@ -52,7 +78,7 @@ const Dashboard = () => {
             xl={3}
             xs={12}
           >
-            <TotalCustomers />
+            <TotalTasks tasks={tasks} />
           </Grid>
           <Grid
             item
@@ -61,7 +87,7 @@ const Dashboard = () => {
             xl={3}
             xs={12}
           >
-            <TasksProgress />
+            <TasksProgress tasks={tasks} NumberOfIncomplete={NumberOfIncomplete}/>
           </Grid>
           <Grid
             item
@@ -70,7 +96,7 @@ const Dashboard = () => {
             xl={3}
             xs={12}
           >
-            <TotalProfit />
+            <TasksToComplete tasks={tasks} NumberOfIncomplete={NumberOfIncomplete} />
           </Grid>
 
           <Grid
@@ -80,7 +106,7 @@ const Dashboard = () => {
             xl={9}
             xs={12}
           >
-            <RecentTasks />
+            <RecentTasks tasks={tasks} />
           </Grid>
 
           <Grid
