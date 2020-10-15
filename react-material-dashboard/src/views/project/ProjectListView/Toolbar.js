@@ -15,12 +15,6 @@ import { Search as SearchIcon } from 'react-feather';
 
 const useStyles = makeStyles((theme) => ({
   root: {},
-  importButton: {
-    marginRight: theme.spacing(1)
-  },
-  exportButton: {
-    marginRight: theme.spacing(1)
-  }
 }));
 
 const Toolbar = ({ className, ...rest }) => {
@@ -35,12 +29,6 @@ const Toolbar = ({ className, ...rest }) => {
         display="flex"
         justifyContent="flex-end"
       >
-        <Button className={classes.importButton}>
-          Import
-        </Button>
-        <Button className={classes.exportButton}>
-          Export
-        </Button>
         <Button
           color="primary"
           variant="contained"
@@ -66,7 +54,7 @@ const Toolbar = ({ className, ...rest }) => {
                     </InputAdornment>
                   )
                 }}
-                placeholder="Search product"
+                placeholder="Search Project"
                 variant="outlined"
               />
             </Box>

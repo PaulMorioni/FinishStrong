@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -9,7 +9,7 @@ import { Pagination } from '@material-ui/lab';
 import Page from 'src/components/Page';
 import Toolbar from './Toolbar';
 import ProductCard from './ProductCard';
-import data from './data';
+import Axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,7 +25,16 @@ const useStyles = makeStyles((theme) => ({
 
 const ProductList = () => {
   const classes = useStyles();
-  const [products] = useState(data);
+  const [projects, setProjects] = useState([]);
+
+
+  useEffect(() => {
+    Axios.get("http://localhost:5000/projects").then((response) => {
+      const allProjects = response.data;
+      setProjects(allProjects.projects)
+    }); 
+  }, [setProjects]);
+
 
   return (
     <Page
@@ -39,17 +48,17 @@ const ProductList = () => {
             container
             spacing={3}
           >
-            {products.map((product) => (
+            {projects.map((project) => (
               <Grid
                 item
-                key={product.id}
+                key={project.id}
                 lg={4}
                 md={6}
                 xs={12}
               >
                 <ProductCard
                   className={classes.productCard}
-                  product={product}
+                  project={project}
                 />
               </Grid>
             ))}

@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const ProductCard = ({ className, product, ...rest }) => {
+const ProjectCard = ({ className, project, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -42,11 +42,6 @@ const ProductCard = ({ className, product, ...rest }) => {
           justifyContent="center"
           mb={3}
         >
-          <Avatar
-            alt="Product"
-            src={product.media}
-            variant="square"
-          />
         </Box>
         <Typography
           align="center"
@@ -54,14 +49,14 @@ const ProductCard = ({ className, product, ...rest }) => {
           gutterBottom
           variant="h4"
         >
-          {product.title}
+          {project.name}
         </Typography>
         <Typography
           align="center"
           color="textPrimary"
           variant="body1"
         >
-          {product.description}
+          {project.description}
         </Typography>
       </CardContent>
       <Box flexGrow={1} />
@@ -101,7 +96,7 @@ const ProductCard = ({ className, product, ...rest }) => {
               display="inline"
               variant="body2"
             >
-              {product.totalDownloads}
+              {project.name}
               {' '}
               Downloads
             </Typography>
@@ -112,9 +107,9 @@ const ProductCard = ({ className, product, ...rest }) => {
   );
 };
 
-ProductCard.propTypes = {
+ProjectCard.propTypes = {
   className: PropTypes.string,
-  product: PropTypes.object.isRequired
+  project: PropTypes.object.isRequired
 };
 
-export default ProductCard;
+export default ProjectCard;
