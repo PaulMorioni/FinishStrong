@@ -6,8 +6,8 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Budget from './Budget';
-import LatestOrders from './LatestOrders';
-import LatestProducts from './LatestProducts';
+import RecentTasks from './RecentTasks';
+import LatestProjects from './LatestProjects';
 import Sales from './Sales';
 import TasksProgress from './TasksProgress';
 import TotalCustomers from './TotalCustomers';
@@ -72,6 +72,7 @@ const Dashboard = () => {
           >
             <TotalProfit />
           </Grid>
+
           <Grid
             item
             lg={8}
@@ -79,8 +80,9 @@ const Dashboard = () => {
             xl={9}
             xs={12}
           >
-            <Sales />
+            <RecentTasks />
           </Grid>
+
           <Grid
             item
             lg={4}
@@ -88,26 +90,9 @@ const Dashboard = () => {
             xl={3}
             xs={12}
           >
-            <TrafficByDevice />
+            <LatestProjects />
           </Grid>
-          <Grid
-            item
-            lg={4}
-            md={6}
-            xl={3}
-            xs={12}
-          >
-            <LatestProducts />
-          </Grid>
-          <Grid
-            item
-            lg={8}
-            md={12}
-            xl={9}
-            xs={12}
-          >
-            <LatestOrders />
-          </Grid>
+
         </Grid>
       </Container>
     </Page>
