@@ -1,4 +1,5 @@
 from . import db
+from datetime import datetime
 
 users_tasks = db.Table('users_tasks',
                        db.Column('user_id', db.Integer,
@@ -42,6 +43,12 @@ class Project(db.Model):
     tasks = db.relationship('Task', backref='project', lazy='dynamic')
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
 
+    def __init__(self, name, description, deadline):
+        self.name = name
+        self.description = description
+        self.deadline = deadline
+        self.created_on = datetime.today()
+
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -55,6 +62,15 @@ class Task(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
     # created_by = this will be fixed in init
 
+    def __init__(self, name, description, eta, deadline, difficulty):
+        self.name = name
+        self.description = description
+        self.eta = str(eta)
+        self.deadline = str(deadline)
+        self.difficulty = difficulty
+        self.created_on = str(datetime.today)
+        self.status = "Created"
+
 
 class Organization(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,3 +78,6 @@ class Organization(db.Model):
     users = db.relationship('User', backref='organization', lazy='dynamic')
     projects = db.relationship(
         'Project', backref='organization', lazy='dynamic')
+
+    def __init__(self, name):
+        self.name = name
