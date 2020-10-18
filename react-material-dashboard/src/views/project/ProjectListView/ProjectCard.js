@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import clsx from 'clsx';
 import {
   Avatar,
@@ -80,25 +81,21 @@ const ProjectCard = ({ className, project, ...rest }) => {
               display="inline"
               variant="body2"
             >
-              Updated 2hr ago
+              Updated {project.lastUpdated ? moment(project.lastUpdated).format("MM/DD/YYYY") : moment(project.createdOn).format("MM/DD/YYYY") }
             </Typography>
           </Grid>
           <Grid
             className={classes.statsItem}
             item
           >
-            <GetAppIcon
-              className={classes.statsIcon}
-              color="action"
-            />
             <Typography
               color="textSecondary"
               display="inline"
               variant="body2"
             >
-              {project.name}
+    
               {' '}
-              Downloads
+              Number of Users: {project.users}
             </Typography>
           </Grid>
         </Grid>

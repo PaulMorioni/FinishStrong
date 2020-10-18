@@ -33,7 +33,7 @@ const Toolbar = ({ className, ...rest }) => {
           color="primary"
           variant="contained"
         >
-          Add product
+          Add Project
         </Button>
       </Box>
       <Box mt={3}>

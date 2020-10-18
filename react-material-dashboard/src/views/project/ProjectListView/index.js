@@ -8,7 +8,7 @@ import {
 import { Pagination } from '@material-ui/lab';
 import Page from 'src/components/Page';
 import Toolbar from './Toolbar';
-import ProductCard from './ProductCard';
+import ProjectCard from './ProjectCard';
 import Axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
@@ -18,18 +18,18 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3)
   },
-  productCard: {
+  projectCard: {
     height: '100%'
   }
 }));
 
-const ProductList = () => {
+const ProjectList = () => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
 
 
   useEffect(() => {
-    Axios.get("http://localhost:5000/projects").then((response) => {
+    Axios.get("http://localhost:5000/api/projects").then((response) => {
       const allProjects = response.data;
       setProjects(allProjects.projects)
     }); 
@@ -39,7 +39,7 @@ const ProductList = () => {
   return (
     <Page
       className={classes.root}
-      title="Products"
+      title="Projects"
     >
       <Container maxWidth={false}>
         <Toolbar />
@@ -56,8 +56,8 @@ const ProductList = () => {
                 md={6}
                 xs={12}
               >
-                <ProductCard
-                  className={classes.productCard}
+                <ProjectCard
+                  className={classes.projectCard}
                   project={project}
                 />
               </Grid>
@@ -80,4 +80,4 @@ const ProductList = () => {
   );
 };
 
-export default ProductList;
+export default ProjectList;
