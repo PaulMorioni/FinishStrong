@@ -39,14 +39,14 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   
   useEffect(() => {
-    Axios.get("http://localhost:5000/projects").then((response) => {
+    Axios.get("http://localhost:5000/api/projects").then((response) => {
       const allProjects = response.data;
       setProjects(allProjects.projects)
     }); 
   }, [setProjects]);
 
   useEffect(() => {
-    Axios.get("http://localhost:5000/tasks").then((response) => {
+    Axios.get("http://localhost:5000/api/tasks").then((response) => {
       const allTasks = response.data;
       setTasks(allTasks.tasks)
     }); 
@@ -116,7 +116,7 @@ const Dashboard = () => {
             xl={3}
             xs={12}
           >
-            <LatestProjects />
+            <LatestProjects projects={projects}/>
           </Grid>
 
         </Grid>

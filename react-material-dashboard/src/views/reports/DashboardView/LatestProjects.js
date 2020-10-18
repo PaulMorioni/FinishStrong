@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import {
   Box,
   Button,
@@ -10,13 +11,11 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemAvatar,
   ListItemText,
   makeStyles
 } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import axios from 'axios';
 
 const useStyles = makeStyles(({
   root: {
@@ -28,17 +27,8 @@ const useStyles = makeStyles(({
   }
 }));
 
-const LatestProjects = ({ className, ...rest }) => {
+const LatestProjects = ({ className,projects, ...rest }) => {
   const classes = useStyles();
-  const [projects, setProjects] = useState([]);
-
-
-  useEffect(() => {
-    axios.get("http://localhost:5000/projects").then((response) => {
-      const allProjects = response.data;
-      setProjects(allProjects.projects)
-    }); 
-  }, [setProjects]);
 
   return (
     <Card
@@ -58,7 +48,7 @@ const LatestProjects = ({ className, ...rest }) => {
           >
             <ListItemText
               primary={project.name}
-              secondary={`Updated ${project.createdOn}`}
+              secondary={`Updated ${moment(project.createdOn).format("MM/DD/YYYY")}`}
             />
             <IconButton
               edge="end"

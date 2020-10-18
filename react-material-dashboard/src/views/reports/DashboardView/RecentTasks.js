@@ -47,6 +47,9 @@ const RecentTasks = ({ className, tasks, ...rest }) => {
           <Table>
             <TableHead>
               <TableRow>
+              <TableCell>
+                  Project Name
+                </TableCell>
                 <TableCell>
                   Task Name
                 </TableCell>
@@ -62,7 +65,7 @@ const RecentTasks = ({ className, tasks, ...rest }) => {
                       active
                       direction="desc"
                     >
-                      Date
+                      Date Created
                     </TableSortLabel>
                   </Tooltip>
                 </TableCell>
@@ -78,13 +81,16 @@ const RecentTasks = ({ className, tasks, ...rest }) => {
                   key={task.id}
                 >
                   <TableCell>
+                    {task.projectName}
+                  </TableCell>
+                  <TableCell>
                     {task.name}
                   </TableCell>
                   <TableCell>
                     {task.description}
                   </TableCell>
                   <TableCell>
-                    {moment(task.created_at).format('DD/MM/YYYY')}
+                    {moment(task.created_on).format('MM/DD/YYYY')}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -95,9 +101,6 @@ const RecentTasks = ({ className, tasks, ...rest }) => {
                   </TableCell>
                 </TableRow>
               ))}
-
-
-
             </TableBody>
           </Table>
         </Box>

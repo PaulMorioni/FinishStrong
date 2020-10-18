@@ -27,7 +27,8 @@ const useStyles = makeStyles(() => ({
 
 const TasksProgress = ({ className, tasks, NumberOfIncomplete, ...rest }) => {
   const classes = useStyles();
-  const fixedDecimal = (NumberOfIncomplete(tasks)/tasks.length).toFixed(2)
+  const numberOfTasks = tasks.length
+  const fixedDecimal = ((numberOfTasks-NumberOfIncomplete(tasks))/numberOfTasks).toFixed(2)
 
   return (
     <Card
