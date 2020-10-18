@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from . import db
 from .models import User, Task, Project, Organization
+from .mock_data import generate_data
 
 main = Blueprint('main', __name__)
 
@@ -30,7 +31,7 @@ def users():
     return jsonify({'users': users})
 
 
-# TODO Will need to add Auth0 functionality and decorators. Will add auth after other routes are created.
+# TODO Will need to add Auth functionality. Will add auth after other routes are created.
 @main.route('/login_user', methods={'POST'})
 def login():
     # login_data = request.get_json
@@ -38,13 +39,13 @@ def login():
     return 'Done', 201
 
 
-@main.route('/add_task', methods={'POST'})
+@main.route('/api/add_task', methods={'POST'})
 def add_task():
 
     task_data = request.get_json()
-
+    # TODO on front end add project_id to JSON
     new_task = Task(name=task_data['name'], description=task_data['description'],
-                    eta=task_data['eta'], deadline=task_data['deadline'], difficulty=task_data['difficulty'])
+                    eta=task_data['eta'], deadline=task_data['deadline'], difficulty=task_data['difficulty'], project_id=task_data['project_id'])
 
     db.session.add(new_task)
     db.session.commit()
@@ -52,26 +53,29 @@ def add_task():
     return 'Done', 201
 
 
-@main.route('/tasks', methods={'GET'})
+@main.route('/api/tasks', methods={'GET'})
 def get_tasks():
     tasks = []
     task_list = Task.query.all()
 
     for task in task_list:
+        project = Project.query.filter_by(id=task.project_id).first()
         tasks.append({
             'name': task.name,
             'description': task.description,
             'eta': task.eta,
             'deadline': task.deadline,
-            'created_on': task.created_on,
+            'createdOn': task.created_on,
+            'lastUpdated': task.last_updated,
             'status': task.status,
             'difficulty': task.difficulty,
+            'projectName': project.name
         })
 
     return jsonify({'tasks': tasks})
 
 
-@main.route('/add_project', methods={'POST'})
+@main.route('/api/add_project', methods={'POST'})
 def add_project():
 
     project_data = request.get_json()
@@ -85,24 +89,40 @@ def add_project():
     return 'Done', 201
 
 
-@main.route('/add_organization', methods={'POST'})
+@main.route('/api/add_organization', methods={'POST'})
 def add_organization():
 
     return 'Done', 201
 
 
-@main.route('/projects', methods={'GET'})
+@main.route('/api/projects', methods={'GET'})
 def projects():
 
     projects = []
     project_list = Project.query.all()
+    users = User.query.all()
 
     for project in project_list:
+        proj_users = []
+        for user in users:
+            if project in user.project:
+                proj_users.append(user)
+
         projects.append({
             'name': project.name,
             'description': project.description,
             'deadline': project.deadline,
-            'organization_id': project.organization_id
+            'organization_id': project.organization_id,
+            'createdOn': project.created_on,
+            'lastUpdated': project.last_updated,
+            'users': len(proj_users)
         })
 
     return jsonify({'projects': projects})
+
+
+@main.route('/api/generate_data', methods={'GET'})
+def make_data():
+
+    generate_data()
+    return 'Done', 201
