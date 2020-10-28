@@ -1,5 +1,7 @@
 from . import db
 from datetime import datetime
+from uuid import UUID, uuid4
+from werkzeug.security import generate_password_hash, check_password_hash
 
 users_tasks = db.Table('users_tasks',
                        db.Column('user_id', db.Integer,
@@ -25,8 +27,10 @@ users_orgs = db.Table('users_orgs',
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(256), unique=True)
     email = db.Column(db.String(32), unique=True)
     password_hash = db.Column(db.String(128))
+    token = db.Column(db.String(128))
     first_name = db.Column(db.String(32))
     last_name = db.Column(db.String(32))
 
@@ -37,9 +41,10 @@ class User(db.Model):
     task = db.relationship("Task", secondary=users_tasks,
                            lazy='subquery', backref=db.backref("user_tasks", lazy=True))
 
-    def __init__(self, email, password, first_name, last_name):
+    def __init__(self, email, password_hash, first_name, last_name):
+        self.public_id = str(uuid4())
         self.email = email
-        self.password_hash = password  # TODO add security
+        self.password_hash = password_hash
         self.first_name = first_name
         self.last_name = last_name
 
@@ -58,14 +63,17 @@ class User(db.Model):
 
 class Organization(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.Integer, unique=True)
     name = db.Column(db.String(32))
 
     def __init__(self, name):
+        self.public_id = str(uuid4())
         self.name = name
 
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(256), unique=True)
     name = db.Column(db.String(32))
     description = db.Column(db.String(256))
     deadline = db.Column(db.Date())
@@ -75,14 +83,19 @@ class Project(db.Model):
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
 
     def __init__(self, name, description, deadline):
+        self.public_id = str(uuid4())
         self.name = name
         self.description = description
         self.deadline = deadline
         self.created_on = datetime.today()
 
+    def update_project(self):
+        self.last_updated = datetime.utcnow()
+
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(256), unique=True)
     name = db.Column(db.String(32))
     description = db.Column(db.String(256))
     eta = db.Column(db.Date())
@@ -94,6 +107,7 @@ class Task(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
 
     def __init__(self, name, description, eta, deadline, difficulty, project_id):
+        self.public_id = str(uuid4())
         self.name = name
         self.description = description
         self.eta = str(eta)
@@ -102,3 +116,6 @@ class Task(db.Model):
         self.created_on = datetime.now()
         self.status = "Created"
         self.project_id = project_id
+
+    def update_task(self):
+        self.last_updated = datetime.utcnow()
