@@ -26,14 +26,22 @@ class UserResource(Resource):
 
 # TODO add other params to put to allow for changes
     def put(self, user_id):
+        user = User.query.filter_by(public_id=user_id).first()
         new_user_data = request.get_json()
+
+        if 'email' in new_user_data:
+            user.email = new_user_data['email']
+        elif 'firstName' in new_user_data:
+            user.first_name = new_user_data['firstName']
+        elif 'lastName' in new_user_data:
+            user.last_name = new_user_data['lastName']
 
         return '', 201
 
     def delete(self, user_id):
         user = User.query.filter_by(public_id=user_id).first()
         db.session.delete(user)
-        db.session.commit
+        db.session.commit()
         return '', 204
 
 
@@ -55,22 +63,24 @@ class UsersResource(Resource):
 
             return 'Done', 201
         except:
-            return 'Failed', 401
+            return request.data, 401
 
 
 class OrganizationResource(Resource):
-    def get(self, id):
-        org = Organization.query.get_or_404(id)
+    def get(self, org_id):
+        org = Organization.query.filter_by(public_id=org_id).first()
         org_json = org_schema.dump(org)
         return org_json
 
-    def put(self, id):
-        org = Organization.query.get_or_404(id)
-        # TODO
+    def put(self, org_id):
+        org = Organization.query.filter_by(public_id=org_id).first()
+        new_org_data = request.get_json()
+        if 'name' in new_org_data:
+            org.name = new_org_data['name']
         return '', 201
 
-    def delete(self, id):
-        org = Organization.query.get_or_404(id)
+    def delete(self, org_id):
+        org = Organization.query.filter_by(public_id=org_id).first()
         db.session.delete(org)
         db.session.commit
         return '', 204
@@ -95,18 +105,29 @@ class OrganizationsResource(Resource):
 
 
 class ProjectResource(Resource):
-    def get(self, id):
-        project = Project.query.get_or_404(id)
+    def get(self, project_id):
+        project = Project.query.filter_by(public_id=project_id).first()
         proj_json = project_schema.dump(project)
         return proj_json
 
-    def put(self, id):
-        project = Project.query.get_or_404(id)
-        # TODO
-        return '', 201
+    def put(self, project_id):
+        project = Project.query.filter_by(public_id=project_id).first()
+        new_project_data = request.get_json()
 
-    def delete(self, id):
-        project = Project.query.get_or_404(id)
+        if 'name' in new_project_data:
+            project.name = new_project_data['name']
+        elif 'description' in new_project_data:
+            project.description = new_project_data['description']
+        elif 'deadline' in new_project_data:
+            project.deadline = new_project_data['deadline']
+        elif 'organization_id' in new_project_data:
+            project.organization_id = new_project_data['organization_id']
+
+        project.update_project()
+        return 'Project Updated', 201
+
+    def delete(self, project_id):
+        project = Project.query.filter_by(public_id=project_id).first()
         db.session.delete(project)
         db.session.commit
         return '', 204
@@ -116,7 +137,7 @@ class ProjectsResource(Resource):
     def get(self):
         projects = Project.query.all()
         projs_json = projects_schema.dump(projects)
-        return projs_json
+        return {"projects": projs_json}
 
         # TODO 'users': len(proj_users)
 
@@ -136,18 +157,33 @@ class ProjectsResource(Resource):
 
 
 class TaskResource(Resource):
-    def get(self, id):
-        task = Task.query.get_or_404(id)
+    def get(self, task_id):
+        task = Task.query.filter_by(public_id=task_id).first()
         task_json = task_schema.dump(task)
         return task_json
 
-    def put(self, id):
-        task = Task.query.get_or_404(id)
-        # TODO
-        return '', 201
+    def put(self, task_id):
+        task = Task.query.filter_by(public_id=task_id).first()
+        new_task_data = request.get_json()
+        if 'description' in new_task_data:
+            task.description = new_task_data['description']
+        elif 'eta' in new_task_data:
+            task.eta = new_task_data['eta']
+        elif 'deadline' in new_task_data:
+            task.deadline = new_task_data['deadline']
+        elif 'status' in new_task_data:
+            task.status = new_task_data['status']
+        elif 'difficulty' in new_task_data:
+            task.difficulty = new_task_data['difficulty']
+        elif 'project_id' in new_task_data:
+            task.project_id = new_task_data['project_id']
 
-    def delete(self, id):
-        task = Task.query.get_or_404(id)
+        task.update_task()
+        db.session.commit()
+        return 'Task Updated', 201
+
+    def delete(self, task_id):
+        task = Task.query.filter_by(public_id=task_id).first()
         db.session.delete(task)
         db.session.commit
         return '', 204
@@ -157,7 +193,7 @@ class TasksResource(Resource):
     def get(self):
         tasks = Task.query.all()
         tasks_json = tasks_schema.dump(tasks)
-        return tasks_json
+        return {"tasks": tasks_json}
 
     def post(self):
         try:
@@ -174,37 +210,11 @@ class TasksResource(Resource):
             return '', 401
 
 
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-
-        if not token:
-            return jsonify({'message': 'Token is missing'}), 401
-
-        try:
-            data = jwt.decode(token, main.config['SECRET_KEY'])
-            current_user = User.query.filter_by(
-                public_id=data['public_id']).first()
-        except:
-            return jsonify({'message': 'Token is invalid'}), 401
-
-        return f(current_user, *args, **kwargs)
-
-    return decorated
-
-
 # TODO Will need to add Auth functionality. Will add auth after other routes are created.
 @main.route('/api/login_user', methods={'POST'})
 def login():
     try:
-        login_bytes = request.data
-        login_string = login_bytes.decode("utf-8")
-        login_data = json.loads(login_string)
-        print(login_data['password'])
+        login_data = request.get_json
 
         return 'Done', 201
     except:
