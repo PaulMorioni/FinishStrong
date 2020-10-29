@@ -11,7 +11,7 @@ import {
   colors,
   makeStyles
 } from '@material-ui/core';
-import MoneyIcon from '@material-ui/icons/Money';
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,7 +62,7 @@ const TotalProjects = ({ className, projects, ...rest }) => {
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
-              <MoneyIcon />
+              <AccountTreeIcon />
             </Avatar>
           </Grid>
         </Grid>

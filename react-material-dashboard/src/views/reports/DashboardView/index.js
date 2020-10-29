@@ -39,14 +39,14 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   
   useEffect(() => {
-    Axios.get("http://localhost:5000/api/projects").then((response) => {
+    Axios.get("http://localhost:5000/api/project").then((response) => {
       const allProjects = response.data;
       setProjects(allProjects.projects)
     }); 
   }, [setProjects]);
 
   useEffect(() => {
-    Axios.get("http://localhost:5000/api/tasks").then((response) => {
+    Axios.get("http://localhost:5000/api/task").then((response) => {
       const allTasks = response.data;
       setTasks(allTasks.tasks)
     }); 

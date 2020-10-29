@@ -10,7 +10,7 @@ import {
   makeStyles,
   colors
 } from '@material-ui/core';
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import DoneOutlineIcon from '@material-ui/icons/DoneOutline';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -55,7 +55,7 @@ const TasksToComplete = ({ className, tasks, NumberOfIncomplete, ...rest }) => {
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
-              <AttachMoneyIcon />
+              <DoneOutlineIcon />
             </Avatar>
           </Grid>
         </Grid>
