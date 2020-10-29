@@ -1,5 +1,5 @@
 from api import ma
-from api.models import User
+from api.models import *
 from marshmallow import Schema, fields
 
 
@@ -42,17 +42,24 @@ projects_schema = ProjectSchema(many=True)
 
 
 class TaskSchema(Schema):
+
     id = fields.Int()
-    public_id = fields.Str()
+    publicId = fields.Str()
     name = fields.Str()
     description = fields.Str()
     eta = fields.DateTime()
     deadline = fields.DateTime()
-    created_on = fields.DateTime()
-    last_updated = fields.DateTime()
+    createdOn = fields.DateTime()
+    lastUpdated = fields.DateTime()
     status = fields.Str()
     difficulty = fields.Int()
-    project_id = fields.Int()
+    projectId = fields.Int()
+    projectName = fields.Method("project_name")
+
+    def project_name(self, task):
+        parent_project = Project.query.filter_by(id=task.project_id).first()
+        proj_name = parent_project.name
+        return proj_name
 
 
 task_schema = TaskSchema()

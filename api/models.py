@@ -52,12 +52,24 @@ class User(db.Model):
         self.task.append(task)
         db.session.commit()
 
+    def unassign_task(self, task):
+        self.task.remove(task)
+        db.session.commit()
+
     def assign_project(self, project):
         self.project.append(project)
         db.session.commit()
 
+    def unassign_project(self, project):
+        self.project.remove(project)
+        db.session.commit()
+
     def assign_org(self, organization):
         self.organization.append(organization)
+        db.session.commit()
+
+    def unassign_org(self, organization):
+        self.organization.remove(organization)
         db.session.commit()
 
 
