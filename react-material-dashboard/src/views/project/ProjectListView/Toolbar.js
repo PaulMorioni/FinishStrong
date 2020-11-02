@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import {
   Box,
   Button,
+  Grid,
   Card,
   CardContent,
   TextField,
@@ -17,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   root: {},
 }));
 
-const Toolbar = ({ className, ...rest }) => {
+const Toolbar = ({ className, handleDisplayForm, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -25,21 +26,15 @@ const Toolbar = ({ className, ...rest }) => {
       className={clsx(classes.root, className)}
       {...rest}
     >
-      <Box
-        display="flex"
-        justifyContent="flex-end"
-      >
-        <Button
-          color="primary"
-          variant="contained"
-        >
-          Add Project
-        </Button>
-      </Box>
       <Box mt={3}>
         <Card>
           <CardContent>
-            <Box maxWidth={500}>
+            <Grid
+            container
+            justify="space-between"
+            alignItems="center"
+            direction="row">
+            <Box width={500}>
               <TextField
                 fullWidth
                 InputProps={{
@@ -58,6 +53,18 @@ const Toolbar = ({ className, ...rest }) => {
                 variant="outlined"
               />
             </Box>
+            <Box>
+            <Button
+            id="projForm"
+            name="projForm"
+            color="primary"
+            variant="contained"
+            onClick={handleDisplayForm}
+        >
+          Add Project
+        </Button>
+        </Box>
+        </Grid>
           </CardContent>
         </Card>
       </Box>

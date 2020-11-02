@@ -12,36 +12,45 @@ import {
   TextField,
   makeStyles
 } from '@material-ui/core';
+import Axios from 'axios';
 
-const states = [
-  {
-    value: 'alabama',
-    label: 'Alabama'
-  },
-  {
-    value: 'new-york',
-    label: 'New York'
-  },
-  {
-    value: 'san-francisco',
-    label: 'San Francisco'
-  }
-];
+import DateFnsUtils from '@date-io/date-fns';
+import {
+  DatePicker,
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
+
 
 const useStyles = makeStyles(() => ({
   root: {}
 }));
 
-const ProfileDetails = ({ className, ...rest }) => {
+const ProjectForm = ({ className, setDisplayProjectForm, getProjects, orgs, ...rest }) => {
   const classes = useStyles();
   const [values, setValues] = useState({
-    firstName: 'Katarina',
-    lastName: 'Smith',
-    email: 'demo@devias.io',
-    phone: '',
-    state: 'Alabama',
-    country: 'USA'
+    name: '',
+    description: '',
+    organizations: ''
   });
+  const [selectedDate, handleDateChange] = useState(new Date());
+
+
+  function submitProjectForm(values) {
+    const instance = Axios.create({
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        'Content-Type': 'application/json'
+      }
+    });
+    const json = JSON.stringify({name: values.name, description: values.description, organization: values.organizations, deadline: selectedDate})
+    instance.post("http://localhost:5000/api/project", json).then(function (response) {
+      if (response.data === 'Done') {
+        setDisplayProjectForm(false);
+        getProjects();
+      }
+    })
+  };
 
   const handleChange = (event) => {
     setValues({
@@ -59,8 +68,7 @@ const ProfileDetails = ({ className, ...rest }) => {
     >
       <Card>
         <CardHeader
-          subheader="The information can be edited"
-          title="Profile"
+          title="New Project"
         />
         <Divider />
         <CardContent>
@@ -75,12 +83,11 @@ const ProfileDetails = ({ className, ...rest }) => {
             >
               <TextField
                 fullWidth
-                helperText="Please specify the first name"
-                label="First name"
-                name="firstName"
+                label="Project Name"
+                name="name"
                 onChange={handleChange}
                 required
-                value={values.firstName}
+                value={values.name}
                 variant="outlined"
               />
             </Grid>
@@ -89,13 +96,31 @@ const ProfileDetails = ({ className, ...rest }) => {
               md={6}
               xs={12}
             >
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <DatePicker
+                    fullWidth
+                    variant="inline"
+                    inputVariant="outlined"
+                    label="Deadline"
+                    required
+                    format="MM/dd/yyyy"
+                    value={selectedDate}
+                    onChange={handleDateChange} />
+                </MuiPickersUtilsProvider>
+
+            </Grid>
+            <Grid
+              item
+              md={6}
+              xs={12}
+            >
               <TextField
                 fullWidth
-                label="Last name"
-                name="lastName"
+                label="Description"
+                name="description"
                 onChange={handleChange}
                 required
-                value={values.lastName}
+                value={values.description}
                 variant="outlined"
               />
             </Grid>
@@ -106,66 +131,21 @@ const ProfileDetails = ({ className, ...rest }) => {
             >
               <TextField
                 fullWidth
-                label="Email Address"
-                name="email"
-                onChange={handleChange}
-                required
-                value={values.email}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Phone Number"
-                name="phone"
-                onChange={handleChange}
-                type="number"
-                value={values.phone}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Country"
-                name="country"
-                onChange={handleChange}
-                required
-                value={values.country}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Select State"
-                name="state"
+                label="Select Organization"
+                name="organization_id"
                 onChange={handleChange}
                 required
                 select
                 SelectProps={{ native: true }}
-                value={values.state}
+                value={values.organization}
                 variant="outlined"
               >
-                {states.map((option) => (
+                {orgs.map((option) => (
                   <option
-                    key={option.value}
-                    value={option.value}
+                    key={option.name}
+                    value={option.id}
                   >
-                    {option.label}
+                    {option.name}
                   </option>
                 ))}
               </TextField>
@@ -179,10 +159,15 @@ const ProfileDetails = ({ className, ...rest }) => {
           p={2}
         >
           <Button
+            name="projectForm"
+            id="projectForm"
             color="primary"
             variant="contained"
+            onClick={() => {
+              submitProjectForm(values)
+            }}
           >
-            Save details
+            Save Project
           </Button>
         </Box>
       </Card>
@@ -190,8 +175,8 @@ const ProfileDetails = ({ className, ...rest }) => {
   );
 };
 
-ProfileDetails.propTypes = {
+ProjectForm.propTypes = {
   className: PropTypes.string
 };
 
-export default ProfileDetails;
+export default ProjectForm;

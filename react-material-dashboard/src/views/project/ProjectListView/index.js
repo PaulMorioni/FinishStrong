@@ -3,12 +3,14 @@ import {
   Box,
   Container,
   Grid,
-  makeStyles
+  makeStyles,
+  Divider
 } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
 import Page from 'src/components/Page';
 import Toolbar from './Toolbar';
 import ProjectCard from './ProjectCard';
+import ProjectForm from './ProjectForm'
 import Axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
@@ -26,13 +28,30 @@ const useStyles = makeStyles((theme) => ({
 const ProjectList = () => {
   const classes = useStyles();
   const [projects, setProjects] = useState([]);
+  const [displayProjectForm, setDisplayProjectForm] = useState(false)
+  const [orgs, setOrgs] = useState([]);
 
+  function getOrgs() {
+    Axios.get("http://localhost:5000/api/organization").then((response) => {
+      const allOrgs = response.data;
+      setOrgs(allOrgs.organizations)
+    }); 
+  }
 
-  useEffect(() => {
-    Axios.get("http://localhost:5000/api/projects").then((response) => {
+  function handleDisplayForm() {
+    setDisplayProjectForm(!displayProjectForm);
+  };
+
+  function getProjects() {
+    Axios.get("http://localhost:5000/api/project").then((response) => {
       const allProjects = response.data;
       setProjects(allProjects.projects)
     }); 
+  }
+
+  useEffect(() => {
+    getProjects()
+    getOrgs()
   }, [setProjects]);
 
 
@@ -41,8 +60,17 @@ const ProjectList = () => {
       className={classes.root}
       title="Projects"
     >
+
       <Container maxWidth={false}>
-        <Toolbar />
+        <div>
+          {displayProjectForm &&
+          <Box>
+            <ProjectForm setDisplayProjectForm={setDisplayProjectForm} getProjects={getProjects} orgs={orgs}/>
+          </Box>
+          }
+        </div>
+
+        <Toolbar handleDisplayForm={handleDisplayForm}/>
         <Box mt={3}>
           <Grid
             container
