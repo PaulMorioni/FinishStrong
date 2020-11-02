@@ -12,6 +12,8 @@ import {
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
+import Axios from 'axios';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +27,26 @@ const useStyles = makeStyles((theme) => ({
 const RegisterView = () => {
   const classes = useStyles();
   const navigate = useNavigate();
+
+
+  function handleOnSubmit(values) {
+  
+    const instance = Axios.create({
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        'Content-Type': 'application/json'
+      }
+    });
+    const json = {firstName: values.firstName, lastName: values.lastName, email : values.email, password : values.password}
+    instance.post("http://localhost:5000/api/user", json).then(function (response) {
+      console.log(response)
+      if (response.data === 'Done') {
+        navigate('/app/dashboard', { replace: true });
+      }
+    })
+  };
+
 
   return (
     <Page
@@ -53,10 +75,8 @@ const RegisterView = () => {
                 password: Yup.string().max(255).required('password is required'),
               })
             }
-            onSubmit={() => {
-
-              //TODO will need to add api call to register and check for email availability.
-              navigate('/app/dashboard', { replace: true });
+            onSubmit={(values) =>{
+              handleOnSubmit(values);
             }}
           >
             {({

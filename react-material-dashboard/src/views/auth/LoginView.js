@@ -12,6 +12,7 @@ import {
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
+import Axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +26,23 @@ const useStyles = makeStyles((theme) => ({
 const LoginView = () => {
   const classes = useStyles();
   const navigate = useNavigate();
+
+  function handleOnSubmit(values) {
+  
+    const instance = Axios.create({
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        'Content-Type': 'application/json'
+      }
+    });
+    const json = JSON.stringify({email : values.email, password : values.password})
+    instance.post("http://localhost:5000/api/login_user", json).then(function (response) {
+      if (response.data === 'Done') {
+        navigate('/app/dashboard', { replace: true });
+      }
+    })
+  };
 
   return (
     <Page
@@ -47,8 +65,8 @@ const LoginView = () => {
               email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
               password: Yup.string().max(255).required('Password is required')
             })}
-            onSubmit={() => {
-              navigate('/app/dashboard', { replace: true });
+            onSubmit={(values) =>{
+              handleOnSubmit(values);
             }}
           >
             {({
