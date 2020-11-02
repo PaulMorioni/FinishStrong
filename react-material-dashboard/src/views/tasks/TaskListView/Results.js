@@ -134,7 +134,7 @@ const Results = ({ className, tasks, ...rest }) => {
                   </TableCell>
                   <TableCell>
                     
-                  ProjectName 
+                  {task.projectName}
 
                   </TableCell>
                   <TableCell>
@@ -154,15 +154,13 @@ const Results = ({ className, tasks, ...rest }) => {
                     {task.description}
                   </TableCell>
                   <TableCell>
-                    {task.created_on}
+                    {moment(task.created_on).format('MM/DD/YYYY')}
                   </TableCell>
                   <TableCell>
-                    {task.deadline}
+                    {moment(task.deadline).format('MM/DD/YYYY')}
                   </TableCell>
                   <TableCell>
-
-
-
+                    {task.lastUpdated ? moment(task.lastUpdated).format("MM/DD/YYYY") : moment(task.createdOn).format("MM/DD/YYYY") }
                   </TableCell>
                   <TableCell>
                     {task.difficulty}

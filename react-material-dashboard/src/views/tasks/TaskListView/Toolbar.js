@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Toolbar = ({ className, ...rest }) => {
+const Toolbar = ({ className, handleDisplayForm, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -33,21 +33,15 @@ const Toolbar = ({ className, ...rest }) => {
       className={clsx(classes.root, className)}
       {...rest}
     >
-      <Box
-        display="flex"
-        justifyContent="flex-end"
-      >
-        <Button
-          color="primary"
-          variant="contained"
-        >
-          Add Task
-        </Button>
-      </Box>
       <Box mt={3}>
         <Card>
           <CardContent>
-            <Box center maxWidth={500}>
+          <Grid
+            container
+            justify="space-between"
+            alignItems="center"
+            direction="row">
+            <Box maxWidth={500}>
               <TextField
                 fullWidth
                 InputProps={{
@@ -66,6 +60,18 @@ const Toolbar = ({ className, ...rest }) => {
                 variant="outlined"
               />
             </Box>
+            <Box>
+            <Button
+            id="taskForm"
+            name="taskForm"
+            color="primary"
+            variant="contained"
+            onClick={handleDisplayForm}
+        >
+          Add Task
+        </Button>
+        </Box>
+        </Grid>
           </CardContent>
         </Card>
       </Box>
