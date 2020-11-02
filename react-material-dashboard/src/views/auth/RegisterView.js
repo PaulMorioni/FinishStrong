@@ -40,7 +40,6 @@ const RegisterView = () => {
     });
     const json = {firstName: values.firstName, lastName: values.lastName, email : values.email, password : values.password}
     instance.post("http://localhost:5000/api/user", json).then(function (response) {
-      console.log(response)
       if (response.data === 'Done') {
         navigate('/app/dashboard', { replace: true });
       }
