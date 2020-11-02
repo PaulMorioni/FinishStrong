@@ -34,7 +34,7 @@ const Toolbar = ({ className, handleDisplayForm, ...rest }) => {
             justify="space-between"
             alignItems="center"
             direction="row">
-            <Box width={500}>
+            <Box maxWidth={500}>
               <TextField
                 fullWidth
                 InputProps={{

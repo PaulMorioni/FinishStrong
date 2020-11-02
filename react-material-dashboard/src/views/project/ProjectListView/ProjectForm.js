@@ -30,10 +30,9 @@ const ProjectForm = ({ className, setDisplayProjectForm, getProjects, orgs, ...r
   const [values, setValues] = useState({
     name: '',
     description: '',
-    organizations: ''
+    organization: orgs[0].id
   });
   const [selectedDate, handleDateChange] = useState(new Date());
-
 
   function submitProjectForm(values) {
     const instance = Axios.create({
@@ -43,7 +42,7 @@ const ProjectForm = ({ className, setDisplayProjectForm, getProjects, orgs, ...r
         'Content-Type': 'application/json'
       }
     });
-    const json = JSON.stringify({name: values.name, description: values.description, organization: values.organizations, deadline: selectedDate})
+    const json = JSON.stringify({name: values.name, description: values.description, organization: values.organization.id, deadline: selectedDate})
     instance.post("http://localhost:5000/api/project", json).then(function (response) {
       if (response.data === 'Done') {
         setDisplayProjectForm(false);
@@ -132,12 +131,12 @@ const ProjectForm = ({ className, setDisplayProjectForm, getProjects, orgs, ...r
               <TextField
                 fullWidth
                 label="Select Organization"
-                name="organization_id"
+                name="organization"
+                value={values.organization}
                 onChange={handleChange}
                 required
                 select
                 SelectProps={{ native: true }}
-                value={values.organization}
                 variant="outlined"
               >
                 {orgs.map((option) => (
