@@ -30,6 +30,11 @@ const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [displayProjectForm, setDisplayProjectForm] = useState(false)
   const [orgs, setOrgs] = useState([]);
+  const [page, setPage] = useState(1);
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
 
   function getOrgs() {
     Axios.get("http://localhost:5000/api/organization").then((response) => {
@@ -76,7 +81,7 @@ const ProjectList = () => {
             container
             spacing={3}
           >
-            {projects.map((project) => (
+            {projects.slice((page - 1) * 9, (page - 1) * 9 + 9).map((project) => (
               <Grid
                 item
                 key={project.id}
@@ -99,8 +104,10 @@ const ProjectList = () => {
         >
           <Pagination
             color="primary"
-            count={3}
+            count={Math.ceil(projects.length/9)}
             size="small"
+            onChange={handlePageChange}
+            page={page}
           />
         </Box>
       </Container>

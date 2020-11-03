@@ -119,7 +119,7 @@ const Results = ({ className, tasks, ...rest }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tasks.slice(0, limit).map((task) => (
+              {tasks.slice(page * limit, page * limit + limit).map((task) => (
                 <TableRow
                   hover
                   key={task.id}
@@ -175,7 +175,6 @@ const Results = ({ className, tasks, ...rest }) => {
         </Box>
       </PerfectScrollbar>
       <TablePagination
-        component="div"
         count={tasks.length}
         onChangePage={handlePageChange}
         onChangeRowsPerPage={handleLimitChange}
