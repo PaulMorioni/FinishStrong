@@ -73,6 +73,14 @@ class User(db.Model):
         db.session.commit()
 
 
+class SensitiveUser:
+    def __init__(self, public_id, email, first_name, last_name):
+        self.public_id = public_id
+        self.email = email
+        self.firstName = first_name
+        self.lastName = last_name
+
+
 class Organization(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.Integer, unique=True)
@@ -81,6 +89,25 @@ class Organization(db.Model):
     def __init__(self, name):
         self.public_id = str(uuid4())
         self.name = name
+
+    def users_list(self):
+        user_ids = []
+        users_model = []
+        id_pairs = db.session.query(users_orgs).filter_by(
+            organization_id=self.id).all()
+        for ids in id_pairs:
+            user_ids.append(ids[0])
+
+        for user_id in user_ids:
+            user_model = User.query.get(user_id)
+            s_user = SensitiveUser(
+                user_model.public_id, user_model.email, user_model.first_name, user_model.last_name)
+            users_model.append(s_user)
+        return users_model
+
+    def project_list(self):
+        projects = Project.query.filter_by(organization_id=self.id).all()
+        return projects
 
 
 class Project(db.Model):
@@ -91,7 +118,6 @@ class Project(db.Model):
     deadline = db.Column(db.Date())
     created_on = db.Column(db.Date())
     last_updated = db.Column(db.Date())
-
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'))
 
     def __init__(self, name, description, deadline):
@@ -103,6 +129,14 @@ class Project(db.Model):
 
     def update_project(self):
         self.last_updated = datetime.utcnow()
+
+    def number_of_users(self):
+        users = db.session.query(users_projects).filter_by(
+            project_id=self.id).all()
+        return len(users)
+
+    def assign_org(self, organization):
+        self.organization_id = organization.id
 
 
 class Task(db.Model):
@@ -131,3 +165,7 @@ class Task(db.Model):
 
     def update_task(self):
         self.last_updated = datetime.utcnow()
+
+    def number_of_users(self):
+        users = users_tasks.query.filter_by(task_id=self.id).all()
+        return len(users)

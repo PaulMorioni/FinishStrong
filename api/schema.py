@@ -1,4 +1,5 @@
 from api import ma
+from . import db
 from api.models import *
 from marshmallow import Schema, fields
 
@@ -21,6 +22,18 @@ class OrganizationSchema(Schema):
     id = fields.Int()
     public_id = fields.Str()
     name = fields.Str()
+    users = fields.Method('users_list')
+    projects = fields.Method('projects_list')
+
+    def users_list(self, organization):
+        users = organization.users_list()
+        users_json = senstive_users_schema.dump(users)
+        return users_json
+
+    def projects_list(self, organization):
+        projects = organization.project_list()
+        projects_json = projects_schema.dump(projects)
+        return projects_json
 
 
 org_schema = OrganizationSchema()
@@ -35,6 +48,10 @@ class ProjectSchema(Schema):
     deadline = fields.DateTime()
     created_on = fields.DateTime()
     last_updated = fields.DateTime()
+    numberOfUsers = fields.Method("number_of_users")
+
+    def number_of_users(self, project):
+        return project.number_of_users()
 
 
 project_schema = ProjectSchema()
@@ -64,3 +81,14 @@ class TaskSchema(Schema):
 
 task_schema = TaskSchema()
 tasks_schema = TaskSchema(many=True)
+
+
+class SensitiveUserSchema(Schema):
+    public_id = fields.Str()
+    email = fields.Email()
+    firstName = fields.Str()
+    lastName = fields.Str()
+
+
+sensitive_user_schema = SensitiveUserSchema()
+senstive_users_schema = SensitiveUserSchema(many=True)
