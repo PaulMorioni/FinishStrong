@@ -95,7 +95,7 @@ const ProjectCard = ({ className, project, ...rest }) => {
             >
     
               {' '}
-              Number of Users: {project.users}
+              Number of Users: {project.numberOfUsers}
             </Typography>
           </Grid>
         </Grid>

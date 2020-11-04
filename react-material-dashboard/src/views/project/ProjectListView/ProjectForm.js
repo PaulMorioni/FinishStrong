@@ -30,7 +30,7 @@ const ProjectForm = ({ className, setDisplayProjectForm, getProjects, orgs, ...r
   const [values, setValues] = useState({
     name: '',
     description: '',
-    organization: orgs[0].id
+    organization: orgs[0].public_id
   });
   const [selectedDate, handleDateChange] = useState(new Date());
 
@@ -42,7 +42,7 @@ const ProjectForm = ({ className, setDisplayProjectForm, getProjects, orgs, ...r
         'Content-Type': 'application/json'
       }
     });
-    const json = JSON.stringify({name: values.name, description: values.description, organization: values.organization.id, deadline: selectedDate})
+    const json = JSON.stringify({name: values.name, description: values.description, organization: values.organization, deadline: selectedDate})
     instance.post("http://localhost:5000/api/project", json).then(function (response) {
       if (response.data === 'Done') {
         setDisplayProjectForm(false);
@@ -142,7 +142,7 @@ const ProjectForm = ({ className, setDisplayProjectForm, getProjects, orgs, ...r
                 {orgs.map((option) => (
                   <option
                     key={option.name}
-                    value={option.id}
+                    value={option.public_id}
                   >
                     {option.name}
                   </option>
