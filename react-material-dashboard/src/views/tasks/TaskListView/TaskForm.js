@@ -33,11 +33,10 @@ const TaskForm = ({ className, setDisplayTaskForm, getTasks, projects, ...rest }
     name: '',
     description: '',
     project: projects[0].id,
-    difficulty: 1,
-
   });
   const [deadline, handleDeadlineChange] = useState(new Date());
   const [eta, handleEtaChange] = useState(new Date());
+  const [difficulty, setDifficulty] = useState(1);
 
   function submitTaskForm(values) {
     const instance = Axios.create({
@@ -47,7 +46,7 @@ const TaskForm = ({ className, setDisplayTaskForm, getTasks, projects, ...rest }
         'Content-Type': 'application/json'
       }
     });
-    const json = JSON.stringify({name: values.name, description: values.description, project_id: values.project, deadline: deadline, eta: eta, difficulty: values.difficulty})
+    const json = JSON.stringify({name: values.name, description: values.description, project_id: values.project, deadline: deadline, eta: eta, difficulty: difficulty})
     instance.post("http://localhost:5000/api/task", json).then(function (response) {
       if (response.data === 'Done') {
         console.log(response)
@@ -63,6 +62,10 @@ const TaskForm = ({ className, setDisplayTaskForm, getTasks, projects, ...rest }
       [event.target.name]: event.target.value
     });
   };
+
+  const handleDifficultyChange = (event, newValue) => {
+    setDifficulty(newValue)
+  }
 
   return (
     <form
@@ -187,6 +190,8 @@ const TaskForm = ({ className, setDisplayTaskForm, getTasks, projects, ...rest }
                 valueLabelDisplay="auto"
                 marks
                 max={10}
+                value={difficulty}
+                onChange={handleDifficultyChange}
                 />
           </Grid>
         </Grid>
