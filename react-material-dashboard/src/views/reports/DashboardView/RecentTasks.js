@@ -21,6 +21,7 @@ import {
   makeStyles
 } from '@material-ui/core';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import { Link } from 'react-router-dom';
 
 //Needs logic to limit number of Recent tasks to 10
 
@@ -110,14 +111,20 @@ const RecentTasks = ({ className, tasks, ...rest }) => {
         justifyContent="flex-end"
         p={2}
       >
-        <Button
-          color="primary"
-          endIcon={<ArrowRightIcon />}
-          size="small"
-          variant="text"
+        <Link
+          to={{
+            pathname: `/app/tasks`,
+          }}
         >
-          View all
-        </Button>
+          <Button
+            color="primary"
+            endIcon={<ArrowRightIcon />}
+            size="small"
+            variant="text"
+          >
+            View all
+          </Button>
+        </Link>
       </Box>
     </Card>
   );

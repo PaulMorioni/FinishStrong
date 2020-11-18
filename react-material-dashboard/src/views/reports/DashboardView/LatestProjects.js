@@ -16,6 +16,7 @@ import {
 } from '@material-ui/core';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles(({
   root: {
@@ -41,7 +42,7 @@ const LatestProjects = ({ className,projects, ...rest }) => {
       />
       <Divider />
       <List>
-        {projects.map((project, i) => (
+        {projects.slice(0,8).map((project, i) => (
           <ListItem
             divider={i < projects.length - 1}
             key={project.id}
@@ -65,14 +66,20 @@ const LatestProjects = ({ className,projects, ...rest }) => {
         justifyContent="flex-end"
         p={2}
       >
-        <Button
-          color="primary"
-          endIcon={<ArrowRightIcon />}
-          size="small"
-          variant="text"
+        <Link
+          to={{
+            pathname: `/app/projects`,
+          }}
         >
-          View all
-        </Button>
+          <Button
+            color="primary"
+            endIcon={<ArrowRightIcon />}
+            size="small"
+            variant="text"
+          >
+            View all
+          </Button>
+        </Link>
       </Box>
     </Card>
   );

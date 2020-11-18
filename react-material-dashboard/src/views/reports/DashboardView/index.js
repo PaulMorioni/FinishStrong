@@ -8,7 +8,6 @@ import Page from 'src/components/Page';
 import TotalProjects from './TotalProjects';
 import RecentTasks from './RecentTasks';
 import LatestProjects from './LatestProjects';
-import Sales from './Sales';
 import TasksProgress from './TasksProgress';
 import TotalTasks from './TotalTasks';
 import TasksToComplete from './TasksToComplete';
