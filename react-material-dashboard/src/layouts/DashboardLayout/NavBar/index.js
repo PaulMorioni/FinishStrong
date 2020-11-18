@@ -37,7 +37,7 @@ const items = [
     title: 'Dashboard'
   },
   {
-    href: '/app/products',
+    href: '/app/projects',
     icon: ShoppingBagIcon,
     title: 'Projects'
   },
@@ -47,7 +47,7 @@ const items = [
     title: 'Tasks'
   },
   {
-    href: '/app/users',
+    href: '/app/organizations',
     icon: UsersIcon,
     title: 'Organization '
   },
@@ -55,11 +55,6 @@ const items = [
     href: '/app/account',
     icon: UserIcon,
     title: 'Account'
-  },
-  {
-    href: '/app/settings',
-    icon: SettingsIcon,
-    title: 'Settings'
   },
   {
     href: '/login',

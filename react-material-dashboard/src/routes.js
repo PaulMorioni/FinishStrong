@@ -7,10 +7,10 @@ import TaskListView from 'src/views/tasks/TaskListView';
 import DashboardView from 'src/views/reports/DashboardView';
 import LoginView from 'src/views/auth/LoginView';
 import NotFoundView from 'src/views/errors/NotFoundView';
-import ProductListView from 'src/views/product/ProductListView';
+import ProjectListView from 'src/views/projects/ProjectListView';
 import RegisterView from 'src/views/auth/RegisterView';
-import SettingsView from 'src/views/settings/SettingsView';
-import UserListView from 'src/views/user/UserListView';
+import OrgListView from 'src/views/organizatons/OrgListView';
+import ProjectView from 'src/views/project/ProjectView';
 
 const routes = [
   {
@@ -20,9 +20,9 @@ const routes = [
       { path: 'account', element: <AccountView /> },
       { path: 'tasks', element: <TaskListView /> },
       { path: 'dashboard', element: <DashboardView /> },
-      { path: 'products', element: <ProductListView /> },
-      { path: 'settings', element: <SettingsView /> },
-      { path: 'users', element: <UserListView/> },
+      { path: 'project/:id', element: <ProjectView/> },
+      { path: 'projects', element: <ProjectListView /> },
+      { path: 'organizations', element: <OrgListView/> },
       { path: '*', element: <Navigate to="/404" /> }
     ]
   },
