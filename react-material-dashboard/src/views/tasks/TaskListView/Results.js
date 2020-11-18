@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import {
-  Avatar,
   Box,
   Card,
   Checkbox,
@@ -15,7 +14,8 @@ import {
   TablePagination,
   TableRow,
   Typography,
-  makeStyles
+  makeStyles,
+  Button
 } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
@@ -25,11 +25,25 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Results = ({ className, tasks, ...rest }) => {
+const Results = ({ className, tasks, setTasks, getTasks, handleTaskPut, ...rest }) => {
   const classes = useStyles();
   const [selectedTaskIds, setSelectedTaskIds] = useState([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
+
+  function handleTaskStatus(task) {
+    if (task.status === "Created"){
+      task.status = "started"
+    } else if(task.status === "started") {
+      task.status = "in progress"
+    } else if (task.status === "in progress"){
+      task.status = "completed"
+    } else {
+      task.status = "created"
+    }
+    handleTaskPut(task)
+    getTasks()
+  }
 
   const handleSelectAll = (event) => {
     let newSelectedTaskIds;
@@ -166,7 +180,12 @@ const Results = ({ className, tasks, ...rest }) => {
                     {task.difficulty}
                   </TableCell>
                   <TableCell>
+                    <Button
+                    onClick={() => {
+                      handleTaskStatus(task)
+                    }}>
                     {task.status}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

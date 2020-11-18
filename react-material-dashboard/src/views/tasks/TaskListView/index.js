@@ -43,6 +43,25 @@ const TaskListView = () => {
     setDisplayTaskForm(!displayTaskForm);
   };
 
+
+  function handleTaskPut(task) {
+    const instance = axios.create({
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        'Content-Type': 'application/json'
+      }
+    });
+  const json = JSON.stringify({name: task.name, description: task.description, project_id: task.project_id, deadline: task.deadline, eta: task.eta, difficulty: task.difficulty, status: task.status })
+  instance.put(`http://localhost:5000/api/task/${task.public_id}`, json).then(function (response) {
+    if (response.data === 'Done') {
+      console.log(response)
+      setDisplayTaskForm(false);
+      getTasks();
+    }
+  })
+};
+
   useEffect(() => {
     getProjects();
     getTasks();
@@ -63,7 +82,7 @@ const TaskListView = () => {
         </div>
         <Toolbar handleDisplayForm={handleDisplayForm}/>
         <Box mt={3}>
-          <Results tasks={tasks} />
+          <Results tasks={tasks} setTasks={setTasks} getTasks={getTasks} handleTaskPut={handleTaskPut}/>
         </Box>
       </Container>
     </Page>
