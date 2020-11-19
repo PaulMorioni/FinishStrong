@@ -49,9 +49,15 @@ class ProjectSchema(Schema):
     created_on = fields.DateTime()
     last_updated = fields.DateTime()
     numberOfUsers = fields.Method("number_of_users")
+    tasks = fields.Method("get_tasks")
 
     def number_of_users(self, project):
         return project.number_of_users()
+
+    def get_tasks(self, project):
+        tasks = project.tasks()
+        json_tasks = tasks_schema.dump(tasks)
+        return json_tasks
 
 
 project_schema = ProjectSchema()
@@ -61,7 +67,7 @@ projects_schema = ProjectSchema(many=True)
 class TaskSchema(Schema):
 
     id = fields.Int()
-    publicId = fields.Str()
+    public_id = fields.Str()
     name = fields.Str()
     description = fields.Str()
     eta = fields.DateTime()

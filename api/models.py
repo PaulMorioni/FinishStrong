@@ -138,6 +138,10 @@ class Project(db.Model):
     def assign_org(self, organization):
         self.organization_id = organization.id
 
+    def tasks(self):
+        tasks = Task.query.filter_by(project_id=self.id).all()
+        return tasks
+
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
