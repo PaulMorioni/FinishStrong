@@ -31,9 +31,9 @@ class UserResource(Resource):
 
         if 'email' in new_user_data:
             user.email = new_user_data['email']
-        elif 'firstName' in new_user_data:
+        if 'firstName' in new_user_data:
             user.first_name = new_user_data['firstName']
-        elif 'lastName' in new_user_data:
+        if 'lastName' in new_user_data:
             user.last_name = new_user_data['lastName']
 
         return '', 201
@@ -82,7 +82,7 @@ class OrganizationResource(Resource):
     def delete(self, org_id):
         org = Organization.query.filter_by(public_id=org_id).first()
         db.session.delete(org)
-        db.session.commit
+        db.session.commit()
         return '', 204
 
 
@@ -90,7 +90,7 @@ class OrganizationsResource(Resource):
     def get(self):
         orgs = Organization.query.all()
         orgs_json = orgs_schema.dump(orgs)
-        return orgs_json
+        return {'organizations': orgs_json}
 
     def post(self):
         try:
@@ -98,7 +98,7 @@ class OrganizationsResource(Resource):
             new_org = Organization(name=org_data['name'])
             db.session.add(new_org)
             db.session.commit()
-            return '', 201
+            return 'Done', 201
         except:
             return '', 401
         # TODO set up relationship with creator
@@ -116,11 +116,11 @@ class ProjectResource(Resource):
 
         if 'name' in new_project_data:
             project.name = new_project_data['name']
-        elif 'description' in new_project_data:
+        if 'description' in new_project_data:
             project.description = new_project_data['description']
-        elif 'deadline' in new_project_data:
+        if 'deadline' in new_project_data:
             project.deadline = new_project_data['deadline']
-        elif 'organization_id' in new_project_data:
+        if 'organization_id' in new_project_data:
             project.organization_id = new_project_data['organization_id']
 
         project.update_project()
@@ -129,7 +129,7 @@ class ProjectResource(Resource):
     def delete(self, project_id):
         project = Project.query.filter_by(public_id=project_id).first()
         db.session.delete(project)
-        db.session.commit
+        db.session.commit()
         return '', 204
 
 
@@ -139,8 +139,6 @@ class ProjectsResource(Resource):
         projs_json = projects_schema.dump(projects)
         return {"projects": projs_json}
 
-        # TODO 'users': len(proj_users)
-
     def post(self):
         try:
             project_data = request.get_json()
@@ -148,12 +146,15 @@ class ProjectsResource(Resource):
             new_project = Project(name=project_data['name'], description=project_data['description'],
                                   deadline=project_data['deadline'])
 
+            organization_public_id = project_data['organization']
+            organization = Organization.query.filter_by(
+                public_id=organization_public_id).first()
             db.session.add(new_project)
+            new_project.assign_org(organization)
             db.session.commit()
-
             return 'Done', 201
         except:
-            return '', 401
+            return 'Failure', 401
 
 
 class TaskResource(Resource):
@@ -164,28 +165,30 @@ class TaskResource(Resource):
 
     def put(self, task_id):
         task = Task.query.filter_by(public_id=task_id).first()
-        new_task_data = request.get_json()
+        new_task_data = request.json
         if 'description' in new_task_data:
-            task.description = new_task_data['description']
-        elif 'eta' in new_task_data:
+            task.description = str(new_task_data['description'])
+        if 'eta' in new_task_data:
             task.eta = new_task_data['eta']
-        elif 'deadline' in new_task_data:
+        if 'deadline' in new_task_data:
             task.deadline = new_task_data['deadline']
-        elif 'status' in new_task_data:
-            task.status = new_task_data['status']
-        elif 'difficulty' in new_task_data:
+        if 'status' in new_task_data:
+            task.status = str(new_task_data["status"])
+        if 'difficulty' in new_task_data:
             task.difficulty = new_task_data['difficulty']
-        elif 'project_id' in new_task_data:
+        if 'project_id' in new_task_data:
             task.project_id = new_task_data['project_id']
 
+        print(new_task_data)
         task.update_task()
         db.session.commit()
+
         return 'Task Updated', 201
 
     def delete(self, task_id):
         task = Task.query.filter_by(public_id=task_id).first()
         db.session.delete(task)
-        db.session.commit
+        db.session.commit()
         return '', 204
 
 
@@ -198,13 +201,13 @@ class TasksResource(Resource):
     def post(self):
         try:
             task_data = request.get_json()
-            # TODO on front end add project_id to JSON
-            new_task = Task(name=task_data['name'], description=task_data['description'],
-                            eta=task_data['eta'], deadline=task_data['deadline'], difficulty=task_data['difficulty'], project_id=task_data['project_id'])
+            project_id = task_data['project_id']
+            project = Project.query.filter_by(id=project_id).first()
 
+            new_task = Task(name=task_data['name'], description=task_data['description'],
+                            eta=task_data['eta'], deadline=task_data['deadline'], difficulty=task_data['difficulty'], project_id=project.id)
             db.session.add(new_task)
             db.session.commit()
-
             return 'Done', 201
         except:
             return '', 401
@@ -225,10 +228,18 @@ api.add_resource(UserResource, '/api/user/<user_id>')
 api.add_resource(UsersResource, '/api/user')
 api.add_resource(OrganizationResource, '/api/organization/<org_id>')
 api.add_resource(OrganizationsResource, '/api/organization')
-api.add_resource(ProjectResource, '/api/project/<proj_id>')
+api.add_resource(ProjectResource, '/api/project/<project_id>')
 api.add_resource(ProjectsResource, '/api/project')
 api.add_resource(TaskResource, '/api/task/<task_id>')
 api.add_resource(TasksResource, '/api/task')
+
+
+@main.route('/api/test', methods={'GET'})
+def test():
+    task = Task.query.get(1)
+    task.status = 'started'
+    db.session.commit()
+    return 'Done', 201
 
 
 @ main.route('/api/generate_data', methods={'GET'})
