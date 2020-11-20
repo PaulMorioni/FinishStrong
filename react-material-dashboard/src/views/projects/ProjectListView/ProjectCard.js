@@ -10,10 +10,12 @@ import {
   Divider,
   Grid,
   Typography,
-  makeStyles
+  makeStyles,
+  Button
 } from '@material-ui/core';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const ProjectCard = ({ className, project, ...rest }) => {
+const ProjectCard = ({ className, project, handleEdit, handleDelete, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -84,6 +86,7 @@ const ProjectCard = ({ className, project, ...rest }) => {
               Updated {project.lastUpdated ? moment(project.lastUpdated).format("MM/DD/YYYY") : moment(project.createdOn).format("MM/DD/YYYY") }
             </Typography>
           </Grid>
+
           <Grid
             className={classes.statsItem}
             item
@@ -97,6 +100,24 @@ const ProjectCard = ({ className, project, ...rest }) => {
               {' '}
               Number of Users: {project.numberOfUsers}
             </Typography>
+          </Grid>
+          <Grid>
+            <Button
+            onClick={(e) =>{
+              e.preventDefault()
+              handleEdit(project)
+            }}
+            >
+            <EditIcon/>
+            </Button>
+            <Button
+            onClick={(e) =>{
+              e.preventDefault()
+              handleDelete(project)
+            }}
+            >
+            <DeleteIcon/>
+            </Button>
           </Grid>
         </Grid>
       </Box>

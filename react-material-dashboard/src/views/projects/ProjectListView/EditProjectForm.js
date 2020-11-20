@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
@@ -25,24 +25,25 @@ const useStyles = makeStyles(() => ({
   root: {}
 }));
 
-const ProjectForm = ({ className, submitProjectForm, getProjects, orgs, ...rest }) => {
+const EditProjectForm = ({ className, submitEditForm, getProjects, project, orgs, ...rest }) => {
   const classes = useStyles();
   const [selectedDate, handleDateChange] = useState(new Date());
   const [values, setValues] = useState({
-    name: '',
-    description: '',
-    organization: orgs[0].public_id
+    id: project.public_id,
+    name: project.name,
+    description: project.description,
+    organization: project.organization
   })
-  
-  function handleSubmit() {
-   submitProjectForm(values, selectedDate)
-  }
 
   const handleChange = (event) => {
     setValues({
       ...values,
       [event.target.name]: event.target.value
     });
+  };
+
+  function handleSubmit() {
+    submitEditForm(values, selectedDate)
   };
 
   return (
@@ -161,8 +162,8 @@ const ProjectForm = ({ className, submitProjectForm, getProjects, orgs, ...rest 
   );
 };
 
-ProjectForm.propTypes = {
+EditProjectForm.propTypes = {
   className: PropTypes.string
 };
 
-export default ProjectForm;
+export default EditProjectForm;
