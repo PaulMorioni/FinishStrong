@@ -164,7 +164,7 @@ class Task(db.Model):
         self.deadline = str(deadline)
         self.difficulty = difficulty
         self.created_on = datetime.now()
-        self.status = "Created"
+        self.status = "created"
         self.project_id = project_id
 
     def update_task(self):
