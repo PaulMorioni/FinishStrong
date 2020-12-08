@@ -44,15 +44,19 @@ class UserResource(Resource):
     def get(self, user_id):
         try:
             user = User.query.filter_by(public_id=user_id).first()
-            s_user = SensitiveUser(
-                user.public_id, user.email, user.first_name, user.last_name)
-            user_json = sensitive_user_schema.dump(s_user)
-            return {'user': user_json}
         except:
-            return 'User Not Found', 401
+            return 'User Not Found', 404
+        s_user = SensitiveUser(
+            user.public_id, user.email, user.first_name, user.last_name)
+        user_json = sensitive_user_schema.dump(s_user)
+        return {'user': user_json}, 200
 
     def put(self, user_id):
-        user = User.query.filter_by(public_id=user_id).first()
+        try:
+            user = User.query.filter_by(public_id=user_id).first()
+        except:
+            return 'Record Not Found', 404
+
         new_user_data = request.get_json()
 
         if 'email' in new_user_data:
@@ -62,68 +66,94 @@ class UserResource(Resource):
         if 'last_name' in new_user_data:
             user.last_name = new_user_data['last_name']
 
-        return '', 201
+        return 'Record Updated', 200
 
     def delete(self, user_id):
-        user = User.query.filter_by(public_id=user_id).first()
+        try:
+            user = User.query.filter_by(public_id=user_id).first()
+        except:
+            return 'Record Not Found', 404
         db.session.delete(user)
         db.session.commit()
-        return '', 204
+        return 'Record Deleted', 200
 
 
 class UsersResource(Resource):
     def get(self):
-        users = User.query.all()
-        users_json = users_schema.dump(users)
-        return users_json
+        try:
+            users = User.query.all()
+            users_json = users_schema.dump(users)
+            return users_json, 200
+        except:
+            return 'Record Not Found', 404
 
     def post(self):
+        user_data = request.get_json()
+        password_hash = generate_password_hash(user_data['password'])
         try:
-            user_data = request.get_json()
-            password_hash = generate_password_hash(user_data['password'])
             new_user = User(email=user_data['email'], password_hash=password_hash,
                             first_name=user_data['first_name'], last_name=user_data['last_name'])
 
             db.session.add(new_user)
             db.session.commit()
+            return 'User Created', 201
 
-            return 'Done', 201
         except:
-            return 'Failure', 401
+            return 'Invalid Entry', 400
 
 
 class OrganizationResource(Resource):
     method_decorators = [token_required]
 
     def get(self, current_user, org_id):
-        org = Organization.query.filter_by(public_id=org_id).first()
-        if org in current_user.organization:
-            org_json = org_schema.dump(org)
-            return org_json
-        else:
-            return 'Not Authorized'
+        try:
+            org = Organization.query.filter_by(public_id=org_id).first()
+
+            if org in current_user.organization:
+                org_json = org_schema.dump(org)
+                return org_json
+            else:
+                return 'Not Authorized', 401
+        except:
+            return 'Record Not Found', 404
 
     def put(self, current_user, org_id):
-        org = Organization.query.filter_by(public_id=org_id).first()
-        new_org_data = request.get_json()
-        if 'name' in new_org_data:
-            org.name = new_org_data['name']
-        return '', 201
+        try:
+            org = Organization.query.filter_by(public_id=org_id).first()
+        except:
+            return 'Record Not Found', 404
+        if org in current_user.organization:
+
+            new_org_data = request.get_json()
+            if 'name' in new_org_data:
+                org.name = new_org_data['name']
+            return 'Record Updated', 201
+        else:
+            return 'Not Authorized', 401
 
     def delete(self, current_user, org_id):
-        org = Organization.query.filter_by(public_id=org_id).first()
-        db.session.delete(org)
-        db.session.commit()
-        return '', 204
+        try:
+            org = Organization.query.filter_by(public_id=org_id).first()
+        except:
+            return 'Record Not Found', 404
+        if org in current_user.organization:
+            db.session.delete(org)
+            db.session.commit()
+            return 'Record Deleted', 200
+        else:
+            return 'Not Authorized', 401
 
 
 class OrganizationsResource(Resource):
     method_decorators = [token_required]
 
     def get(self, current_user):
-        orgs = current_user.organization
-        orgs_json = orgs_schema.dump(orgs)
-        return {'organizations': orgs_json}
+        try:
+            orgs = current_user.organization
+            orgs_json = orgs_schema.dump(orgs)
+            return {'organizations': orgs_json}, 200
+        except:
+            return 'Record Not Found', 404
 
     def post(self, current_user):
         try:
@@ -132,87 +162,118 @@ class OrganizationsResource(Resource):
             db.session.add(new_org)
             current_user.assign_org(new_org)
             db.session.commit()
-            return 'Done', 201
+            return 'Record Created', 201
         except:
-            return '', 500
+            return 'Invalid Entry', 400
 
 
 class ProjectResource(Resource):
     method_decorators = [token_required]
 
     def get(self, current_user, project_id):
-        project = Project.query.filter_by(public_id=project_id).first()
-        proj_json = project_schema.dump(project)
-        return proj_json
+        try:
+            project = Project.query.filter_by(public_id=project_id).first()
+        except:
+            return 'Record Not Found', 404
+        if project in current_user.project:
+            proj_json = project_schema.dump(project)
+            return proj_json, 200
+        else:
+            return 'Not Authorized', 401
 
     def put(self, current_user, project_id):
         try:
             project = Project.query.filter_by(public_id=project_id).first()
             new_project_data = request.get_json()
 
-            if 'name' in new_project_data:
-                project.name = new_project_data['name']
-            if 'description' in new_project_data:
-                project.description = new_project_data['description']
-            if 'deadline' in new_project_data:
-                project.deadline = new_project_data['deadline']
-            if 'organization_id' in new_project_data:
-                project.organization_id = new_project_data['organization_id']
+            if project in current_user.project:
+                if 'name' in new_project_data:
+                    project.name = new_project_data['name']
+                if 'description' in new_project_data:
+                    project.description = new_project_data['description']
+                if 'deadline' in new_project_data:
+                    project.deadline = new_project_data['deadline']
+                if 'organization_id' in new_project_data:
+                    project.organization_id = new_project_data['organization_id']
 
-            project.update_project()
-            db.session.commit()
-            return 'Done', 201
+                project.update_project()
+                db.session.commit()
+                return 'Record Updated', 200
+            else:
+                return 'Not Authorized', 401
         except:
-            return 'Failure', 401
+            return 'Record Not Found', 404
 
     def delete(self, current_user, project_id):
         try:
             project = Project.query.filter_by(public_id=project_id).first()
-            db.session.delete(project)
-            db.session.commit()
-            return 'Done', 204
+            if project in current_user.project:
+                db.session.delete(project)
+                db.session.commit()
+                return 'Record Deleted', 200
+            else:
+                return 'Not Authorized', 401
         except:
-            return 'Failure', 401
+            return 'Record Not Found', 404
 
 
 class ProjectsResource(Resource):
     method_decorators = [token_required]
 
     def get(self, current_user):
-        projects = current_user.project
-        projs_json = projects_schema.dump(projects)
-        return {"projects": projs_json}
+        try:
+            projects = current_user.project
+            projs_json = projects_schema.dump(projects)
+            return {"projects": projs_json}, 200
+        except:
+            return 'Record Not Found', 404
 
     def post(self, current_user):
+        project_data = request.get_json()
         try:
-            project_data = request.get_json()
-
             new_project = Project(name=project_data['name'], description=project_data['description'],
                                   deadline=project_data['deadline'])
+        except:
+            return "Invalid Project Entry", 400
 
-            organization_public_id = project_data['organization']
+        organization_public_id = project_data['organization']
+        try:
             organization = Organization.query.filter_by(
                 public_id=organization_public_id).first()
-            db.session.add(new_project)
-            new_project.assign_org(organization)
-            current_user.assign_project(new_project)
-            db.session.commit()
-            return 'Done', 201
         except:
-            return 'Failure', 401
+            return "Organization Not Found", 40
+
+        db.session.add(new_project)
+
+        new_project.assign_org(organization)
+        current_user.assign_project(new_project)
+        db.session.commit()
+
+        return 'Record Created', 201
 
 
 class TaskResource(Resource):
     method_decorators = [token_required]
 
     def get(self, current_user, task_id):
-        task = Task.query.filter_by(public_id=task_id).first()
-        task_json = task_schema.dump(task)
-        return task_json
+        try:
+            task = Task.query.filter_by(public_id=task_id).first()
+        except:
+            return 'Record Not Found', 404
+        if task in current_user.task:
+            task_json = task_schema.dump(task)
+            return task_json, 200
+        else:
+            return 'Not Authorized', 401
 
     def put(self, current_user, task_id):
         try:
             task = Task.query.filter_by(public_id=task_id).first()
+        except:
+            return 'Record Not Found', 404
+
+        if task in current_user.task:
+
             new_task_data = request.json
             if 'description' in new_task_data:
                 task.description = str(new_task_data['description'])
@@ -230,42 +291,51 @@ class TaskResource(Resource):
             task.update_task()
             db.session.commit()
 
-            return 'Done', 201
-        except:
-            return 'Failure', 401
+            return 'Record Updated', 200
+        else:
+            return 'Not Authorized', 401
 
     def delete(self, current_user, task_id):
-        task = Task.query.filter_by(public_id=task_id).first()
-        db.session.delete(task)
-        db.session.commit()
-        return '', 204
+        try:
+            task = Task.query.filter_by(public_id=task_id).first()
+        except:
+            return 'Record Not Found', 404
+
+            if task in current_user.task:
+                db.session.delete(task)
+                db.session.commit()
+                return 'Record Deleted', 200
+            else:
+                return 'Not Authorized', 401
 
 
 class TasksResource(Resource):
     method_decorators = [token_required]
 
     def get(self, current_user):
-        tasks = current_user.task
-        tasks_json = tasks_schema.dump(tasks)
-        return {'tasks': tasks_json}
+        try:
+            tasks = current_user.task
+            tasks_json = tasks_schema.dump(tasks)
+            return {'tasks': tasks_json}, 200
+        except:
+            return 'Record Not Found', 404
 
     def post(self, current_user):
+        task_data = request.get_json()
+        project_id = task_data['project_id']
         try:
-            task_data = request.get_json()
-            project_id = task_data['project_id']
             project = Project.query.filter_by(id=project_id).first()
-
+        except:
+            return 'Record Not Found', 404
+        if project in current_user.project:
             new_task = Task(name=task_data['name'], description=task_data['description'],
                             eta=task_data['eta'], deadline=task_data['deadline'], difficulty=task_data['difficulty'], project_id=project.id)
             db.session.add(new_task)
             current_user.assign_task(new_task)
             db.session.commit()
-            return 'Done', 201
-        except:
-            return '', 401
-
-
-# TODO Will need to add Auth functionality. Will add auth after other routes are created.
+            return 'Record Created', 201
+        else:
+            return 'Not Authorized', 401
 
 
 @main.route('/api/login_user', methods={'POST'})
@@ -300,15 +370,7 @@ api.add_resource(TaskResource, '/api/task/<task_id>')
 api.add_resource(TasksResource, '/api/task')
 
 
-@main.route('/api/test', methods={'GET'})
-def test():
-    task = Task.query.get(1)
-    task.status = 'started'
-    db.session.commit()
-    return 'Done', 201
-
-
-@ main.route('/api/generate_data', methods={'GET'})
+@main.route('/api/generate_data', methods={'GET'})
 def make_data():
 
     generate_data()
