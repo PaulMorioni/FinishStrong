@@ -89,17 +89,22 @@ class UsersResource(Resource):
 
     def post(self):
         user_data = request.get_json()
-        password_hash = generate_password_hash(user_data['password'])
         try:
-            new_user = User(email=user_data['email'], password_hash=password_hash,
-                            first_name=user_data['first_name'], last_name=user_data['last_name'])
-
-            db.session.add(new_user)
-            db.session.commit()
-            return 'User Created', 201
-
+            user_check = User.query.filter_by(email=user_data['email'])
+            if user_check:
+                return 'Email Already In Use', 400
         except:
-            return 'Invalid Entry', 400
+            password_hash = generate_password_hash(user_data['password'])
+            try:
+                new_user = User(email=user_data['email'], password_hash=password_hash,
+                                first_name=user_data['first_name'], last_name=user_data['last_name'])
+
+                db.session.add(new_user)
+                db.session.commit()
+                return 'User Created', 201
+
+            except:
+                return 'Invalid Entry', 400
 
 
 class OrganizationResource(Resource):
@@ -301,12 +306,12 @@ class TaskResource(Resource):
         except:
             return 'Record Not Found', 404
 
-            if task in current_user.task:
-                db.session.delete(task)
-                db.session.commit()
-                return 'Record Deleted', 200
-            else:
-                return 'Not Authorized', 401
+        if task in current_user.task:
+            db.session.delete(task)
+            db.session.commit()
+            return 'Record Deleted', 200
+        else:
+            return 'Not Authorized', 401
 
 
 class TasksResource(Resource):
