@@ -12,6 +12,7 @@ import TasksProgress from './TasksProgress';
 import TotalTasks from './TotalTasks';
 import TasksToComplete from './TasksToComplete';
 import Axios from 'axios';
+import Alerts from 'src/components/Alerts';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3)
   }
 }));
+
 
 function NumberOfIncomplete(tasks) {
   const incomplete = []
@@ -36,20 +38,42 @@ const Dashboard = () => {
   const classes = useStyles();
   const [projects, setProjects] = useState([])
   const [tasks, setTasks] = useState([]);
-  
-  useEffect(() => {
-    Axios.get("http://localhost:5000/api/project").then((response) => {
-      const allProjects = response.data;
-      setProjects(allProjects.projects)
-    }); 
-  }, [setProjects]);
+  const [errors, setErrors] = useState([]);
+
+  const handleError = (message) => {
+    setErrors([...errors, message])
+  };
 
   useEffect(() => {
-    Axios.get("http://localhost:5000/api/task").then((response) => {
+    const jwt = window.localStorage.getItem('token');
+    Axios.get("http://localhost:5000/api/project", {
+      headers: {
+        'x-access-token': jwt
+      } 
+    }).then((response) => {
+      const allProjects = response.data;
+      setProjects(allProjects.projects)
+    }).catch(err => {
+      handleError(err.response.data.message);
+    });
+  }, []);
+
+  useEffect(() => {
+    const jwt = window.localStorage.getItem('token');
+    Axios.get("http://localhost:5000/api/task", {
+      headers: {
+        'x-access-token': jwt
+      } 
+    }).then((response) => {
       const allTasks = response.data;
       setTasks(allTasks.tasks)
-    }); 
-  }, [setTasks]);
+    }).catch(err => {
+      handleError(err.response.data.message); 
+    });
+  }, []);
+
+  useEffect(() =>{
+  }, [errors])
 
   return (
     <Page
@@ -117,9 +141,14 @@ const Dashboard = () => {
           >
             <LatestProjects projects={projects}/>
           </Grid>
-
         </Grid>
       </Container>
+      {errors.length > 0 &&
+         errors.map((error) => (
+           <div>
+              <Alerts text={error} type={"error"}/>
+          </div>
+               ))};
     </Page>
   );
 };
