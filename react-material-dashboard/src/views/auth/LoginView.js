@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect} from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -13,6 +13,7 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Axios from 'axios';
+import Alerts from 'src/components/Alerts';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,23 +27,35 @@ const useStyles = makeStyles((theme) => ({
 const LoginView = () => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const [errors, setErrors] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleError = (message) => {
+    setErrors([...errors, message])
+  };
 
   function handleOnSubmit(values) {
-  
-    const instance = Axios.create({
+    const loginToken = Buffer.from(`${values.email}:${values.password}`, 'utf8').toString('base64')
+    setIsSubmitting(true);
+    Axios.post("http://localhost:5000/api/login_user",{}, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-        'Content-Type': 'application/json'
+        'Authorization': `Basic ${loginToken}`
       }
-    });
-    const json = JSON.stringify({email : values.email, password : values.password})
-    instance.post("http://localhost:5000/api/login_user", json).then(function (response) {
-      if (response.data === 'Done') {
+    }).then(function (response) {
+      if (response.status === 201) {
         navigate('/app/dashboard', { replace: true });
-      }
-    })
+        if ('token' in response.data){
+        window.localStorage.setItem('token', response.data['token']);
+        window.localStorage.setItem('user_id', response.data['user_id']);
+      }}
+    }).catch(err => {
+      handleError(err.response.data.message); 
+      setIsSubmitting(false)
+    });
   };
+
+  useEffect(() =>{
+  }, [errors])
 
   return (
     <Page
@@ -74,7 +87,6 @@ const LoginView = () => {
               handleBlur,
               handleChange,
               handleSubmit,
-              isSubmitting,
               touched,
               values
             }) => (
@@ -155,6 +167,12 @@ const LoginView = () => {
           </Formik>
         </Container>
       </Box>
+      {errors.length > 0 &&
+         errors.map((error) => (
+           <div>
+              <Alerts text={error} type={"error"}/>
+          </div>
+               ))};
     </Page>
   );
 };
