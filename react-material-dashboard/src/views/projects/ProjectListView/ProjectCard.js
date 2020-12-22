@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import clsx from 'clsx';
 import {
-  Avatar,
   Box,
   Card,
   CardContent,
@@ -11,9 +10,9 @@ import {
   Grid,
   Typography,
   makeStyles,
-  Button
 } from '@material-ui/core';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
+import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 
@@ -102,22 +101,22 @@ const ProjectCard = ({ className, project, handleEdit, handleDelete, ...rest }) 
             </Typography>
           </Grid>
           <Grid>
-            <Button
+            <IconButton
             onClick={(e) =>{
               e.preventDefault()
               handleEdit(project)
             }}
             >
             <EditIcon/>
-            </Button>
-            <Button
+            </IconButton>
+            <IconButton
             onClick={(e) =>{
               e.preventDefault()
               handleDelete(project)
             }}
             >
             <DeleteIcon/>
-            </Button>
+            </IconButton>
           </Grid>
         </Grid>
       </Box>

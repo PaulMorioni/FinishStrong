@@ -12,8 +12,6 @@ import {
   TextField,
   makeStyles
 } from '@material-ui/core';
-import Axios from 'axios';
-
 import DateFnsUtils from '@date-io/date-fns';
 import {
   DatePicker,

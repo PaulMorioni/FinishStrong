@@ -12,8 +12,6 @@ import {
   TextField,
   makeStyles
 } from '@material-ui/core';
-import Axios from 'axios';
-
 import DateFnsUtils from '@date-io/date-fns';
 import {
   DatePicker,
@@ -154,7 +152,7 @@ const EditProjectForm = ({ className, submitEditForm, getProjects, project, orgs
               handleSubmit()
             }}
           >
-            Save Project
+            Update Project
           </Button>
         </Box>
       </Card>

@@ -4,7 +4,6 @@ import {
   Container,
   Grid,
   makeStyles,
-  Divider
 } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
 import Page from 'src/components/Page';
@@ -14,6 +13,7 @@ import ProjectForm from './ProjectForm';
 import EditProjectForm from './EditProjectForm';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
+import Alerts from 'src/components/Alerts'; 
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,11 +35,19 @@ const ProjectList = () => {
   const [page, setPage] = useState(1);
   const [isEdit, setIsEdit] = useState({edit: false, project: null});
   const [buttonText, setButtonText] = useState('Add Project')
+  const jwt = window.localStorage.getItem('token');
+  const [errors, setErrors] = useState([]);
+
+  const handleError = (message) => {
+    setErrors([...errors, message])
+  };
+
   const instance = Axios.create({
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+        'x-access-token': jwt
     }
   });
 
@@ -54,17 +62,31 @@ const ProjectList = () => {
   };
 
   function getProjects() {
-    Axios.get("http://localhost:5000/api/project").then((response) => {
+    const jwt = window.localStorage.getItem('token');
+    Axios.get("http://localhost:5000/api/project", {
+      headers: {
+        'x-access-token': jwt
+      }
+    }).then((response) => {
       const allProjects = response.data;
       setProjects(allProjects.projects)
+    }).catch(err => {
+      handleError(err.response.data.message);
     }); 
   }
 
   function getOrgs() {
-    Axios.get("http://localhost:5000/api/organization").then((response) => {
+    const jwt = window.localStorage.getItem('token');
+    Axios.get("http://localhost:5000/api/organization", {
+      headers: {
+        'x-access-token': jwt
+      }
+    }).then((response) => {
       const allOrgs = response.data;
       setOrgs(allOrgs.organizations)
-    }); 
+    }).catch(err => {
+      handleError(err.response.data.message);
+    });
   }
 
   function handleDisplayForm() {
@@ -78,22 +100,27 @@ const ProjectList = () => {
   function submitEditForm(values, selectedDate) {
     const json = JSON.stringify({name: values.name, description: values.description, organization: values.organization, deadline: selectedDate})
       instance.put(`http://localhost:5000/api/project/${values.id}`, json).then(function (response) {
-      if (response.data === 'Done') {
+      if (response.status === 200) {
         closeForms();
         getProjects();
       }
-    })
+    }).catch(err => {
+      handleError(err.response.data.message);
+    });
   };
 
   function submitProjectForm(values, selectedDate) {
 
     const json = JSON.stringify({name: values.name, description: values.description, organization: values.organization, deadline: selectedDate})
     instance.post("http://localhost:5000/api/project", json).then(function (response) {
-      if (response.data === 'Done') {
+      if (response.status === 201) {
         setDisplayProjectForm(false);
         getProjects();
       }
-    })};
+    }).catch(err => {
+      handleError(err.response.data.message);
+    });
+  };
 
 
 
@@ -106,9 +133,11 @@ const ProjectList = () => {
   };
 
   function handleDelete(project) {
-    Axios.delete(`http://localhost:5000/api/project/${project.public_id}`).then(function (response) {
+    instance.delete(`http://localhost:5000/api/project/${project.public_id}`).then(function (response) {
         getProjects();
-      })
+      }).catch(err => {
+        handleError(err.response.data.message);
+      });
   };
 
   function handleEdit(project){
@@ -197,6 +226,12 @@ const ProjectList = () => {
           />
         </Box>
       </Container>
+      {errors.length > 0 &&
+         errors.map((error) => (
+           <div>
+              <Alerts text={error} type={"error"}/>
+          </div>
+               ))};
     </Page>
   );
 };
