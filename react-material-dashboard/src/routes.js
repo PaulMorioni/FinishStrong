@@ -9,8 +9,9 @@ import LoginView from 'src/views/auth/LoginView';
 import NotFoundView from 'src/views/errors/NotFoundView';
 import ProjectListView from 'src/views/projects/ProjectListView';
 import RegisterView from 'src/views/auth/RegisterView';
-import OrgListView from 'src/views/organizatons/OrgListView';
+import OrgListView from 'src/views/organizations/OrgListView';
 import ProjectView from 'src/views/project/ProjectView';
+
 
 const routes = [
   {
