@@ -9,8 +9,9 @@ import Page from 'src/components/Page';
 import Results from './Results';
 import Toolbar from './Toolbar';
 import Axios from 'axios';
-import OrgForm from './OrgForm'
-import ProjectsTable from './ProjectsTable'
+import OrgForm from './OrgForm';
+import ProjectsTable from './ProjectsTable';
+import Alerts from 'src/components/Alerts';
 
 
 
@@ -28,16 +29,51 @@ const OrgListView = () => {
   const classes = useStyles();
   const [orgs, setOrgs] = useState([]);
   const [displayOrgForm, setDisplayOrgForm] = useState(false)
+  const [errors, setErrors] = useState([]);
 
+  const handleError = (message) => {
+    setErrors([...errors, message])
+  };
+
+  function submitOrgForm(values) {
+    const jwt = window.localStorage.getItem('token');
+    const instance = Axios.create({
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        'Content-Type': 'application/json',
+        'x-access-token': jwt
+      }
+    });
+    const json = JSON.stringify({name: values.name})
+    instance.post("http://localhost:5000/api/organization", json).then(function (response) {
+      if (response.status === 201) {
+        setDisplayOrgForm(false);
+        getOrgs();
+      }
+    }).catch(err => {
+      handleError(err.response.data.message); 
+    });
+  };
+
+  useEffect(() =>{
+  }, [errors])
 
   function handleDisplayForm() {
     setDisplayOrgForm(!displayOrgForm);
   };
 
   function getOrgs() {
-    Axios.get("http://localhost:5000/api/organization").then((response) => {
+    const jwt = window.localStorage.getItem('token');
+    Axios.get("http://localhost:5000/api/organization", {
+      headers: {
+        'x-access-token': jwt
+      }
+    }).then((response) => {
       const allOrgs = response.data.organizations;
       setOrgs(allOrgs);
+    }).catch(err => {
+      handleError(err.response.data.message); 
     }); 
   };
 
@@ -54,7 +90,7 @@ const OrgListView = () => {
       <div>
           {displayOrgForm &&
           <Box>
-            <OrgForm setDisplayOrgForm={setDisplayOrgForm} getOrgs={getOrgs}/>
+            <OrgForm setDisplayOrgForm={setDisplayOrgForm} getOrgs={getOrgs} submitOrgForm={submitOrgForm}/>
           </Box>
           }
         </div>
@@ -70,6 +106,12 @@ const OrgListView = () => {
           </Grid>
         ))}
       </Container>
+      {errors.length > 0 &&
+         errors.map((error) => (
+           <div>
+              <Alerts text={error} type={"error"}/>
+          </div>
+               ))};
     </Page>
   );
 };

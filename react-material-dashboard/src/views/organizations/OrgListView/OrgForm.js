@@ -25,28 +25,11 @@ const useStyles = makeStyles(() => ({
   root: {}
 }));
 
-const OrgForm = ({ className, setDisplayOrgForm, getOrgs, ...rest }) => {
+const OrgForm = ({ className, setDisplayOrgForm, getOrgs,submitOrgForm, ...rest }) => {
   const classes = useStyles();
   const [values, setValues] = useState({
     name: '',
   });
-
-  function submitOrgForm(values) {
-    const instance = Axios.create({
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-        'Content-Type': 'application/json'
-      }
-    });
-    const json = JSON.stringify({name: values.name})
-    instance.post("http://localhost:5000/api/organization", json).then(function (response) {
-      if (response.data === 'Done') {
-        setDisplayOrgForm(false);
-        getOrgs();
-      }
-    })
-  };
 
   const handleChange = (event) => {
     setValues({
