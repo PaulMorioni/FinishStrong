@@ -8,6 +8,8 @@ import {
 import Page from 'src/components/Page';
 import StatusTasks from './createdTasks';
 import Axios from 'axios';
+import Alerts from 'src/components/Alerts';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,30 +25,45 @@ const ProjectView = ({params}) => {
   const [project, setProject] = useState([])
   const [tasks, setTasks] = useState([]);
   const { id } = useParams();
+  const [errors, setErrors] = useState([]);
+
+  const handleError = (message) => {
+    setErrors([...errors, message])
+  };
 
   function handleTaskStatus(queryStatus) {
     if (queryStatus === "created"){
-      let returnTasks = tasks.filter(task => task.status == "created" || "Created");
+      let returnTasks = tasks.filter(task => task.status === "created" || "Created");
       return returnTasks
     } else if ( queryStatus === "started") {
-      let returnTasks = tasks.filter(task => task.status == "started");
+      let returnTasks = tasks.filter(task => task.status === "started");
       return returnTasks
     } else if ( queryStatus === "in progress") {
-      let returnTasks = tasks.filter(task => task.status == "in progress");
+      let returnTasks = tasks.filter(task => task.status === "in progress");
       return returnTasks
     } else if ( queryStatus === "completed" || "Completed"){
-      let returnTasks = tasks.filter(task => task.status == "completed");
+      let returnTasks = tasks.filter(task => task.status === "completed");
       return returnTasks
     }
   }
 
   useEffect(() => {
-    Axios.get("http://localhost:5000/api/project/"+ id).then((response) => {
+    const jwt = window.localStorage.getItem('token');
+    Axios.get("http://localhost:5000/api/project/"+ id, {
+      headers: {
+        'x-access-token': jwt
+      }
+    }).then((response) => {
       const project = response.data;
       setProject(project)
       setTasks(project.tasks)
+    }).catch(err => {
+      handleError(err.response.data.message); 
     }); 
   }, [setProject]);
+
+  useEffect(() =>{
+  }, [errors])
 
   return (
     <Page
@@ -96,6 +113,12 @@ const ProjectView = ({params}) => {
           </Grid>
         </Grid>
       </Container>
+      {errors.length > 0 &&
+         errors.map((error) => (
+           <div>
+              <Alerts text={error} type={"error"}/>
+          </div>
+               ))};
     </Page>
   );
 };
