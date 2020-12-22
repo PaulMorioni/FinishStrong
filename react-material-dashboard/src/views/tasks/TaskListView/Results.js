@@ -15,8 +15,10 @@ import {
   TableRow,
   Typography,
   makeStyles,
-  Button
+  Button,
 } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
+import EditIcon from '@material-ui/icons/Edit';
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -25,14 +27,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Results = ({ className, tasks, setTasks, getTasks, handleTaskPut, ...rest }) => {
+const Results = ({ className, tasks, setTasks, handleEdit, handleStatusChange, ...rest }) => {
   const classes = useStyles();
   const [selectedTaskIds, setSelectedTaskIds] = useState([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(0);
 
   function handleTaskStatus(task) {
-    if (task.status === "Created"){
+    if (task.status === "created"){
       task.status = "started"
     } else if(task.status === "started") {
       task.status = "in progress"
@@ -41,8 +43,7 @@ const Results = ({ className, tasks, setTasks, getTasks, handleTaskPut, ...rest 
     } else {
       task.status = "created"
     }
-    handleTaskPut(task)
-    getTasks()
+    handleStatusChange(task)
   }
 
   const handleSelectAll = (event) => {
@@ -186,6 +187,14 @@ const Results = ({ className, tasks, setTasks, getTasks, handleTaskPut, ...rest 
                     }}>
                     {task.status}
                     </Button>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton size="small"
+                    onClick={() => {
+                      handleEdit(task)
+                    }}>
+                      <EditIcon fontSize="small"/>
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}

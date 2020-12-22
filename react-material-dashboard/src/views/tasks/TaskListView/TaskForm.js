@@ -27,34 +27,17 @@ const useStyles = makeStyles(() => ({
   root: {}
 }));
 
-const TaskForm = ({ className, setDisplayTaskForm, getTasks, projects, ...rest }) => {
+const TaskForm = ({ className, submitTaskForm, projects, ...rest }) => {
   const classes = useStyles();
   const [values, setValues] = useState({
     name: '',
     description: '',
     project: projects[0].id,
+    //TODO ^ fix issue with opening task form when no projects avaliable
   });
   const [deadline, handleDeadlineChange] = useState(new Date());
   const [eta, handleEtaChange] = useState(new Date());
   const [difficulty, setDifficulty] = useState(1);
-
-  function submitTaskForm(values) {
-    const instance = Axios.create({
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-        'Content-Type': 'application/json'
-      }
-    });
-    const json = JSON.stringify({name: values.name, description: values.description, project_id: values.project, deadline: deadline, eta: eta, difficulty: difficulty})
-    instance.post("http://localhost:5000/api/task", json).then(function (response) {
-      if (response.data === 'Done') {
-        console.log(response)
-        setDisplayTaskForm(false);
-        getTasks();
-      }
-    })
-  };
 
   const handleChange = (event) => {
     setValues({
@@ -65,6 +48,10 @@ const TaskForm = ({ className, setDisplayTaskForm, getTasks, projects, ...rest }
 
   const handleDifficultyChange = (event, newValue) => {
     setDifficulty(newValue)
+  }
+
+  function handleSubmit() {
+    submitTaskForm(values, deadline, eta, difficulty)
   }
 
   return (
@@ -208,7 +195,7 @@ const TaskForm = ({ className, setDisplayTaskForm, getTasks, projects, ...rest }
             color="primary"
             variant="contained"
             onClick={() => {
-              submitTaskForm(values)
+              handleSubmit()
             }}
           >
             Save Task

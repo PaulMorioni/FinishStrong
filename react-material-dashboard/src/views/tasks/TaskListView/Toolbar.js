@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Toolbar = ({ className, handleDisplayForm, ...rest }) => {
+const Toolbar = ({ className, handleDisplayForm, buttonText, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -68,7 +68,7 @@ const Toolbar = ({ className, handleDisplayForm, ...rest }) => {
             variant="contained"
             onClick={handleDisplayForm}
         >
-          Add Task
+          {buttonText}
         </Button>
         </Box>
         </Grid>
