@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect} from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import {
   Box,
   Button,
-    Container,
+  Container,
   Link,
   TextField,
   Typography,
@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Axios from 'axios';
-
+import Alerts from 'src/components/Alerts';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,33 +24,45 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const RegisterView = () => {
+const LoginView = () => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const [errors, setErrors] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-
-  function handleOnSubmit(values) {
-  
-    const instance = Axios.create({
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-        'Content-Type': 'application/json'
-      }
-    });
-    const json = {firstName: values.firstName, lastName: values.lastName, email : values.email, password : values.password}
-    instance.post("http://localhost:5000/api/user", json).then(function (response) {
-      if (response.data === 'Done') {
-        navigate('/app/dashboard', { replace: true });
-      }
-    })
+  const handleError = (message) => {
+    setErrors([...errors, message])
   };
 
+  function handleOnSubmit(values) {
+    const loginToken = Buffer.from(`${values.email}:${values.password}`, 'utf8').toString('base64')
+    setIsSubmitting(true);
+    Axios.post("https://finish-strong.herokuapp.com/api/login_user",{}, {
+      headers: {
+        'Authorization': `Basic ${loginToken}`,
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      }
+    }).then(function (response) {
+      if (response.status === 201) {
+        navigate('/app/dashboard', { replace: true });
+        if ('token' in response.data){
+        window.localStorage.setItem('token', response.data['token']);
+        window.localStorage.setItem('user_id', response.data['user_id']);
+      }}
+    }).catch(err => {
+      handleError(err.response.data.message); 
+      setIsSubmitting(false)
+    });
+  };
+
+  useEffect(() =>{
+  }, [errors])
 
   return (
     <Page
       className={classes.root}
-      title="Register"
+      title="Login"
     >
       <Box
         display="flex"
@@ -61,19 +73,13 @@ const RegisterView = () => {
         <Container maxWidth="sm">
           <Formik
             initialValues={{
-              email: '',
-              firstName: '',
-              lastName: '',
-              password: '',
+              email: 'JohnDoe@finish-strong.com',
+              password: 'Password123'
             }}
-            validationSchema={
-              Yup.object().shape({
-                email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                firstName: Yup.string().max(255).required('First name is required'),
-                lastName: Yup.string().max(255).required('Last name is required'),
-                password: Yup.string().max(255).required('password is required'),
-              })
-            }
+            validationSchema={Yup.object().shape({
+              email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+              password: Yup.string().max(255).required('Password is required')
+            })}
             onSubmit={(values) =>{
               handleOnSubmit(values);
             }}
@@ -83,7 +89,6 @@ const RegisterView = () => {
               handleBlur,
               handleChange,
               handleSubmit,
-              isSubmitting,
               touched,
               values
             }) => (
@@ -93,40 +98,20 @@ const RegisterView = () => {
                     color="textPrimary"
                     variant="h2"
                   >
-                    Create new account
-                  </Typography>
-                  <Typography
-                    color="textSecondary"
-                    gutterBottom
-                    variant="body2"
-                  >
-                    Use your email to create new account
+                    Sign in
                   </Typography>
                 </Box>
-                <TextField
-                  error={Boolean(touched.firstName && errors.firstName)}
-                  fullWidth
-                  helperText={touched.firstName && errors.firstName}
-                  label="First name"
-                  margin="normal"
-                  name="firstName"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.firstName}
-                  variant="outlined"
-                />
-                <TextField
-                  error={Boolean(touched.lastName && errors.lastName)}
-                  fullWidth
-                  helperText={touched.lastName && errors.lastName}
-                  label="Last name"
-                  margin="normal"
-                  name="lastName"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.lastName}
-                  variant="outlined"
-                />
+                <Box
+                  mt={3}
+                  mb={1}
+                >
+                  <Typography
+                    color="textSecondary"
+                    variant="body1"
+                  >
+                    Login with email address
+                  </Typography>
+                </Box>
                 <TextField
                   error={Boolean(touched.email && errors.email)}
                   fullWidth
@@ -162,21 +147,21 @@ const RegisterView = () => {
                     type="submit"
                     variant="contained"
                   >
-                    Sign up now
+                    Sign in now
                   </Button>
                 </Box>
                 <Typography
                   color="textSecondary"
                   variant="body1"
                 >
-                  Have an account?
+                  Don&apos;t have an account?
                   {' '}
                   <Link
                     component={RouterLink}
-                    to="/login"
+                    to="/register"
                     variant="h6"
                   >
-                    Sign in
+                    Sign up
                   </Link>
                 </Typography>
               </form>
@@ -184,8 +169,14 @@ const RegisterView = () => {
           </Formik>
         </Container>
       </Box>
+      {errors.length > 0 &&
+         errors.map((error) => (
+           <div>
+              <Alerts text={error} type={"error"}/>
+          </div>
+               ))};
     </Page>
   );
 };
 
-export default RegisterView;
+export default LoginView;

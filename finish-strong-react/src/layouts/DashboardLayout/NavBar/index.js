@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
   Avatar,
   Box,
-  Button,
   Divider,
   Drawer,
   Hidden,
@@ -13,22 +12,16 @@ import {
   makeStyles
 } from '@material-ui/core';
 import {
-  AlertCircle as AlertCircleIcon,
   BarChart as BarChartIcon,
   Lock as LockIcon,
-  Settings as SettingsIcon,
   ShoppingBag as ShoppingBagIcon,
   User as UserIcon,
   UserPlus as UserPlusIcon,
   Users as UsersIcon
 } from 'react-feather';
 import NavItem from './NavItem';
+import Axios from 'axios';
 
-const user = {
-  avatar: '/static/images/avatars/avatar_6.png',
-  jobTitle: 'Senior Developer',
-  name: 'Katarina Smith'
-};
 
 const items = [
   {
@@ -87,11 +80,29 @@ const useStyles = makeStyles(() => ({
 const NavBar = ({ onMobileClose, openMobile }) => {
   const classes = useStyles();
   const location = useLocation();
+  const [user, setUser] = useState({
+    avatar: '/static/images/avatars/avatar_6.png'  });
+
+  function getUser() {
+    const user_id = window.localStorage.getItem('user_id');
+    const jwt = window.localStorage.getItem('token');
+    if (user_id){
+    Axios.get(`http://localhost:5000/api/user/${user_id}`, {
+      headers: {
+        'x-access-token': jwt
+      }
+    }).then((response) => {
+      const user = response.data;
+      setUser(user)
+    }); 
+  }
+  }
 
   useEffect(() => {
     if (openMobile && onMobileClose) {
       onMobileClose();
     }
+    getUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
@@ -118,7 +129,7 @@ const NavBar = ({ onMobileClose, openMobile }) => {
           color="textPrimary"
           variant="h5"
         >
-          {user.name}
+          {user.firstName} {user.lastName}
         </Typography>
         <Typography
           color="textSecondary"

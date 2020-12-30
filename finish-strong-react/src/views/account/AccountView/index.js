@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
@@ -7,6 +7,7 @@ import {
 import Page from 'src/components/Page';
 import Profile from './Profile';
 import ProfileDetails from './ProfileDetails';
+import Axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,6 +20,38 @@ const useStyles = makeStyles((theme) => ({
 
 const Account = () => {
   const classes = useStyles();
+  const [user, setUser] = useState({});
+  const [errors, setErrors] = useState([]);
+
+  const handleError = (message) => {
+    setErrors([...errors, message])
+  };
+
+  function getUser() {
+    const jwt = window.localStorage.getItem('token');
+    const user_id= window.localStorage.getItem('user_id');
+    Axios.get(`http://localhost:5000/api/user/${user_id}`, {
+      headers: {
+        'x-access-token': jwt
+      }
+    }).then((response) => {
+      const user = response.data.user;
+      setUser(user);
+    }).catch(err => {
+      if (err.response){
+        console.log(err.response)
+      } else {
+        //TODO finish order handeling after fixed on API server
+      }
+    }, [])};
+
+  useEffect(() => {
+    getUser()
+    
+  }, [])
+
+  useEffect(() => {
+  }, [errors])
 
   return (
     <Page
@@ -36,7 +69,7 @@ const Account = () => {
             md={6}
             xs={12}
           >
-            <Profile />
+            <Profile user={user}/>
           </Grid>
           <Grid
             item
@@ -44,7 +77,7 @@ const Account = () => {
             md={6}
             xs={12}
           >
-            <ProfileDetails />
+            <ProfileDetails user={user}/>
           </Grid>
         </Grid>
       </Container>
